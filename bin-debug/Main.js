@@ -152,9 +152,70 @@ var Main = (function (_super) {
         textfield.x = 172;
         textfield.y = 135;
         this.textfield = textfield;
+        var bg = new egret.Shape();
+        bg.graphics.beginFill(0x336699, 100);
+        bg.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageHeight);
+        bg.graphics.endFill();
+        this.addChild(bg);
+        var sprite1 = new egret.Sprite();
+        sprite1.x = 100;
+        sprite1.y = 100;
+        sprite1.width = 250;
+        sprite1.height = 400;
+        var cicle = new egret.Shape();
+        cicle.graphics.beginFill(0x336600, 90);
+        cicle.anchorOffsetX = -30;
+        cicle.anchorOffsetY = -30;
+        cicle.graphics.drawCircle(0, 0, 30);
+        cicle.graphics.endFill();
+        sprite1.addChild(cicle);
+        var text1 = new egret.TextField();
+        text1.text = "第一行字";
+        text1.size = 16;
+        text1.x = 0;
+        text1.y = 60;
+        text1.touchEnabled = true;
+        text1.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onTouchText1, this);
+        sprite1.addChild(text1);
+        var textLine = new egret.Shape();
+        textLine.graphics.lineStyle(2, 0x773300); // 5像素粗细， 颜色
+        textLine.graphics.drawRect(text1.x, text1.y, text1.width, text1.height);
+        textLine.graphics.endFill(); //结束绘图
+        sprite1.addChild(textLine);
+        var spriteLine = new egret.Shape();
+        spriteLine.graphics.lineStyle(2, 0x770000); // 5像素粗细， 颜色
+        spriteLine.graphics.drawRect(sprite1.x, sprite1.y, sprite1.width, sprite1.height);
+        spriteLine.graphics.endFill(); //结束绘图
+        this.addChild(spriteLine);
+        this.addChild(sprite1);
+        var bmp1 = new egret.Bitmap(RES.getRes("ctm_jpg"));
+        bmp1.x = 0;
+        bmp1.y = 90;
+        bmp1.width = sprite1.width;
+        bmp1.height = sprite1.height - 90;
+        sprite1.addChild(bmp1);
+        egret.log("bmp1 index =%d", sprite1.getChildIndex(bmp1));
+        var urlreq = new egret.URLRequest("http://httpbin.org/user-agent");
+        var urlloader = new egret.URLLoader();
+        urlloader.addEventListener(egret.Event.COMPLETE, function (evt) {
+            egret.log("%s", evt.target.data);
+        }, this);
+        urlloader.load(urlreq);
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
         // Get asynchronously a json configuration file according to name keyword. As for the property of name please refer to the configuration file of resources/resource.json.
         RES.getResAsync("description_json", this.startAnimation, this);
+    };
+    Main.prototype.onTouchText1 = function (evt) {
+        var text1 = evt.currentTarget;
+        text1.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.onTouchText1, this);
+        if (Math.floor(Math.random() * 100) < 50) {
+            text1.textColor = 0x001133;
+            var sound = RES.getRes("天鹅湖-柴可夫斯基 - 新雅室内乐_mp3");
+            var soundChannel = sound.play(0, 1);
+        }
+        else {
+            text1.textColor = 0x006633;
+        }
     };
     /**
      * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
