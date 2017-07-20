@@ -34,6 +34,7 @@ class Main extends egret.DisplayObjectContainer {
      * Process interface loading
      */
     private loadingView: LoadingUI;
+    private updateCicleTimer: egret.Timer;
 
     public constructor() {
         super();
@@ -207,14 +208,14 @@ class Main extends egret.DisplayObjectContainer {
         cicle2.addEventListener(egret.TouchEvent.TOUCH_END, this.onTouchStop, this);
         sprite1.addChild(cicle2);
 
-        
+
 
         let text1: egret.TextField = new egret.TextField();
         text1.text = "第一行字";
         text1.size = 16;
         text1.x = 0;
         text1.y = 60;
-        
+
         text1.touchEnabled = true;
         text1.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onTouchText1, this);
         sprite1.addChild(text1);
@@ -277,8 +278,23 @@ class Main extends egret.DisplayObjectContainer {
         }, this);
         urlloader.load(urlreq);
 
-        this.dragStageStart = new egret.Point(0,0);
+        this.dragStageStart = new egret.Point(0, 0);
 
+
+        this.updateCicleTimer = new egret.Timer(1000, 30);
+        this.updateCicleTimer.addEventListener(egret.TimerEvent.TIMER, () => {
+            let x = Math.floor(Math.random() * 200);
+            let y = Math.floor(Math.random() * 200);
+            let color = (Math.floor(Math.random() * 254) + 1) * (Math.floor(Math.random() * 254) + 1) * (Math.floor(Math.random() * 254) + 1);
+            let c:egret.Shape = new egret.Shape();
+            c.graphics.beginFill(color, 100);
+            c.graphics.drawCircle(x, y, 10);
+            c.graphics.endFill();
+            this.addChild(c);
+        }, this);
+
+        this.updateCicleTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, () => { egret.log("timer end") }, this);
+        this.updateCicleTimer.start();
 
 
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。

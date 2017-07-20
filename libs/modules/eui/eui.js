@@ -700,24 +700,38 @@ var eui;
 /// <reference path="Validator.ts" />
 var eui;
 (function (eui) {
-    function getAssets(source, callback) {
-        var adapter = egret.getImplementation("eui.IAssetAdapter");
-        if (!adapter) {
-            adapter = new eui.DefaultAssetAdapter();
+    function getAssets(source) {
+        var _this = this;
+        if (!eui.assetsAdapter) {
+            var polyfill_1 = egret.getImplementation("eui.IAssetAdapter");
+            if (!polyfill_1) {
+                polyfill_1 = new eui.DefaultAssetAdapter();
+            }
+            eui.assetsAdapter = function (source) {
+                return new Promise(function (reslove, reject) {
+                    polyfill_1.getAsset(source, function (content) {
+                        reslove(content);
+                    }, _this);
+                });
+            };
         }
-        adapter.getAsset(source, function (content) {
-            callback(content);
-        }, this);
+        return eui.assetsAdapter(source);
     }
     eui.getAssets = getAssets;
-    function getTheme(source, callback) {
-        var adapter = egret.getImplementation("eui.IThemeAdapter");
-        if (!adapter) {
-            adapter = new eui.DefaultThemeAdapter();
+    function getTheme(source) {
+        var _this = this;
+        if (!eui.themeAdapter) {
+            var polyfill_2 = egret.getImplementation("eui.IThemeAdapter");
+            if (!polyfill_2) {
+                polyfill_2 = new eui.DefaultThemeAdapter();
+            }
+            eui.themeAdapter = function (source) {
+                return new Promise(function (reslove, reject) {
+                    polyfill_2.getTheme(source, function (data) { reslove(data); }, reject, _this);
+                });
+            };
         }
-        adapter.getTheme(source, function (data) {
-            callback(data);
-        }, function (e) { console.log(e); }, this);
+        return eui.themeAdapter(source);
     }
     eui.getTheme = getTheme;
 })(eui || (eui = {}));
@@ -13956,11 +13970,11 @@ var eui;
          */
         Scroller.prototype.onTouchEndCapture = function (event) {
             if (this.$Scroller[12 /* touchCancle */]) {
-                event.$bubbles = false;
-                this.dispatchBubbleEvent(event);
-                event.$bubbles = true;
                 event.stopPropagation();
                 this.onTouchEnd(event);
+                event.$isPropagationStopped = false;
+                event.$bubbles = false;
+                this.dispatchEvent(event);
             }
         };
         /**
@@ -13969,10 +13983,10 @@ var eui;
          */
         Scroller.prototype.onTouchTapCapture = function (event) {
             if (this.$Scroller[12 /* touchCancle */]) {
-                event.$bubbles = false;
-                this.dispatchBubbleEvent(event);
-                event.$bubbles = true;
                 event.stopPropagation();
+                event.$isPropagationStopped = false;
+                event.$bubbles = false;
+                this.dispatchEvent(event);
             }
         };
         /**
@@ -14127,32 +14141,6 @@ var eui;
          * @private
          * @param event
          */
-        Scroller.prototype.dispatchBubbleEvent = function (event) {
-            var viewport = this.$Scroller[10 /* viewport */];
-            if (!viewport) {
-                return;
-            }
-            var cancelEvent = new egret.TouchEvent(event.type, event.bubbles, event.cancelable);
-            var target = this.downTarget;
-            var list = this.$getPropagationList(target);
-            var length = list.length;
-            var targetIndex = list.length * 0.5;
-            var startIndex = -1;
-            for (var i = 0; i < length; i++) {
-                if (list[i] === viewport) {
-                    startIndex = i;
-                    break;
-                }
-            }
-            list.splice(0, list.length - startIndex + 1);
-            targetIndex = 0;
-            this.$dispatchPropagationEvent(cancelEvent, list, targetIndex);
-            egret.Event.release(cancelEvent);
-        };
-        /**
-         * @private
-         * @param event
-         */
         Scroller.prototype.dispatchCancelEvent = function (event) {
             var viewport = this.$Scroller[10 /* viewport */];
             if (!viewport) {
@@ -14170,8 +14158,7 @@ var eui;
                     break;
                 }
             }
-            list.splice(0, startIndex + 1 - 2);
-            list.splice(list.length - 1 - startIndex + 2, startIndex + 1 - 2);
+            list.splice(0, startIndex + 1);
             targetIndex -= startIndex + 1;
             this.$dispatchPropagationEvent(cancelEvent, list, targetIndex);
             egret.Event.release(cancelEvent);
@@ -18195,7 +18182,7 @@ var eui;
             this.sourceChanged = false;
             var source = this._source;
             if (source && typeof source == "string") {
-                eui.getAssets(this._source, function (data) {
+                eui.getAssets(this._source).then(function (data) {
                     if (source !== _this._source)
                         return;
                     if (!egret.is(data, "egret.Texture")) {
@@ -18677,7 +18664,10 @@ var eui;
          */
         Theme.prototype.load = function (url) {
             var _this = this;
-            eui.getTheme(url, function (data) { return _this.onConfigLoaded(data); });
+            eui.getTheme(url).then(function (data) { return _this.onConfigLoaded(data); })
+                .catch(function (e) {
+                egret.$error(3000, _this.$configURL);
+            });
         };
         /**
          * @private
@@ -20523,7 +20513,7 @@ var eui;
             this.$fontChanged = false;
             var font = this.$font;
             if (typeof font == "string") {
-                eui.getAssets(font, function (bitmapFont) {
+                eui.getAssets(font).then(function (bitmapFont) {
                     _this.$setFontData(bitmapFont);
                 });
             }
@@ -20973,7 +20963,7 @@ var EXML;
             }
             callback(url, str);
         };
-        eui.getTheme(openUrl, onConfigLoaded);
+        eui.getTheme(openUrl).then(onConfigLoaded).catch(onConfigLoaded);
     }
 })(EXML || (EXML = {}));
 //////////////////////////////////////////////////////////////////////////////////////

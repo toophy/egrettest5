@@ -109,6 +109,7 @@ var Main = (function (_super) {
      * Create a game scene
      */
     Main.prototype.createGameScene = function () {
+        var _this = this;
         var sky = this.createBitmapByName("bg_jpg");
         this.addChild(sky);
         var stageW = this.stage.stageWidth;
@@ -221,7 +222,7 @@ var Main = (function (_super) {
             text2.x = 100;
             text2.y = 30;
             text2.strokeColor = 0x000000;
-            text2.stroke = 4;
+            text2.stroke = 2;
             sprite1.addChild(text2);
         }
         else {
@@ -230,7 +231,7 @@ var Main = (function (_super) {
             text3.x = 100;
             text3.y = 30;
             text3.strokeColor = 0x000000;
-            text3.stroke = 10;
+            text3.stroke = 1;
             sprite1.addChild(text3);
         }
         egret.log("bmp1 index =%d", sprite1.getChildIndex(bmp1));
@@ -241,6 +242,19 @@ var Main = (function (_super) {
         }, this);
         urlloader.load(urlreq);
         this.dragStageStart = new egret.Point(0, 0);
+        this.updateCicleTimer = new egret.Timer(1000, 30);
+        this.updateCicleTimer.addEventListener(egret.TimerEvent.TIMER, function () {
+            var x = Math.floor(Math.random() * 200);
+            var y = Math.floor(Math.random() * 200);
+            var color = (Math.floor(Math.random() * 254) + 1) * (Math.floor(Math.random() * 254) + 1) * (Math.floor(Math.random() * 254) + 1);
+            var c = new egret.Shape();
+            c.graphics.beginFill(color, 100);
+            c.graphics.drawCircle(x, y, 10);
+            c.graphics.endFill();
+            _this.addChild(c);
+        }, this);
+        this.updateCicleTimer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () { egret.log("timer end"); }, this);
+        this.updateCicleTimer.start();
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
         // Get asynchronously a json configuration file according to name keyword. As for the property of name please refer to the configuration file of resources/resource.json.
         RES.getResAsync("description_json", this.startAnimation, this);
