@@ -24,7 +24,8 @@
 		{
 			"url": "assets/ctm.jpg",
 			"type": "image",
-			"name": "ctm_jpg"
+			"name": "ctm_jpg",
+			"scale9grid": "195,106,519,503"
 		},
 		{
 			"url": "assets/天鹅湖-柴可夫斯基 - 新雅室内乐.mp3",

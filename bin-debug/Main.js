@@ -162,13 +162,30 @@ var Main = (function (_super) {
         sprite1.y = 100;
         sprite1.width = 250;
         sprite1.height = 400;
+        // sprite1.scrollRect = new egret.Rectangle(0, 0, 250, 400);
+        // sprite1.cacheAsBitmap = true;
+        // sprite1.scaleX = 1.5;
+        // sprite1.scaleY = 2.0;
         var cicle = new egret.Shape();
         cicle.graphics.beginFill(0x336600, 90);
-        cicle.anchorOffsetX = -30;
-        cicle.anchorOffsetY = -30;
+        cicle.anchorOffsetX = 0;
+        cicle.anchorOffsetY = 0;
         cicle.graphics.drawCircle(0, 0, 30);
         cicle.graphics.endFill();
+        cicle.touchEnabled = true;
+        cicle.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onTouchStart, this);
+        cicle.addEventListener(egret.TouchEvent.TOUCH_END, this.onTouchStop, this);
         sprite1.addChild(cicle);
+        var cicle2 = new egret.Shape();
+        cicle2.graphics.beginFill(0x556622, 90);
+        cicle2.anchorOffsetX = 0;
+        cicle2.anchorOffsetY = 0;
+        cicle2.graphics.drawCircle(60, 100, 30);
+        cicle2.graphics.endFill();
+        cicle2.touchEnabled = true;
+        cicle2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onTouchStart, this);
+        cicle2.addEventListener(egret.TouchEvent.TOUCH_END, this.onTouchStop, this);
+        sprite1.addChild(cicle2);
         var text1 = new egret.TextField();
         text1.text = "第一行字";
         text1.size = 16;
@@ -190,10 +207,32 @@ var Main = (function (_super) {
         this.addChild(sprite1);
         var bmp1 = new egret.Bitmap(RES.getRes("ctm_jpg"));
         bmp1.x = 0;
-        bmp1.y = 90;
+        bmp1.y = 190;
         bmp1.width = sprite1.width;
         bmp1.height = sprite1.height - 90;
         sprite1.addChild(bmp1);
+        // let renderTexture:egret.RenderTexture = new egret.RenderTexture();
+        // renderTexture.drawToTexture(sprite1);
+        // renderTexture.saveToFile("image/png","a/sprite1.png",new egret.Rectangle(0,0,sprite1.width,sprite1.height));
+        var hitRslt = bmp1.hitTestPoint(sprite1.x + 10, sprite1.y + 91);
+        if (hitRslt) {
+            var text2 = new egret.TextField();
+            text2.text = "hit ok";
+            text2.x = 100;
+            text2.y = 30;
+            text2.strokeColor = 0x000000;
+            text2.stroke = 4;
+            sprite1.addChild(text2);
+        }
+        else {
+            var text3 = new egret.TextField();
+            text3.text = "hit failed";
+            text3.x = 100;
+            text3.y = 30;
+            text3.strokeColor = 0x000000;
+            text3.stroke = 10;
+            sprite1.addChild(text3);
+        }
         egret.log("bmp1 index =%d", sprite1.getChildIndex(bmp1));
         var urlreq = new egret.URLRequest("http://httpbin.org/user-agent");
         var urlloader = new egret.URLLoader();
@@ -201,6 +240,7 @@ var Main = (function (_super) {
             egret.log("%s", evt.target.data);
         }, this);
         urlloader.load(urlreq);
+        this.dragStageStart = new egret.Point(0, 0);
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
         // Get asynchronously a json configuration file according to name keyword. As for the property of name please refer to the configuration file of resources/resource.json.
         RES.getResAsync("description_json", this.startAnimation, this);
@@ -216,6 +256,28 @@ var Main = (function (_super) {
         else {
             text1.textColor = 0x006633;
         }
+    };
+    Main.prototype.onTouchStart = function (evt) {
+        this.dragObj = evt.currentTarget;
+        var dragPos = this.dragObj.parent.localToGlobal(this.dragObj.x, this.dragObj.y);
+        this.dragOffsetX = evt.stageX - dragPos.x;
+        this.dragOffsetY = evt.stageY - dragPos.y;
+        // this.dragStageStart.x = evt.stageX - this.dragObj.parent.x;
+        // this.dragStageStart.y = evt.stageY - this.dragObj.parent.y;
+        this.dragObj.parent.addChild(this.dragObj);
+        this.stage.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchMove, this);
+        egret.log("start");
+    };
+    Main.prototype.onTouchStop = function (evt) {
+        this.stage.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchMove, this);
+        egret.log("stop");
+    };
+    Main.prototype.onTouchMove = function (evt) {
+        var dragPos = this.dragObj.parent.globalToLocal(evt.stageX - this.dragOffsetX, evt.stageY - this.dragOffsetY);
+        this.dragObj.x = dragPos.x;
+        this.dragObj.y = dragPos.y;
+        // this.dragObj.parent.scrollRect.x = evt.stageX - this.dragStageStart.x - this.dragObj.parent.x;
+        // this.dragObj.parent.scrollRect.y = evt.stageY - this.dragStageStart.y - this.dragObj.parent.y;
     };
     /**
      * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
