@@ -285,7 +285,7 @@ class Main extends egret.DisplayObjectContainer {
         this.updateCicleTimer.addEventListener(egret.TimerEvent.TIMER, () => {
             let x = Math.floor(Math.random() * 200);
             let y = Math.floor(Math.random() * 200);
-            let color = (Math.floor(Math.random() * 254) + 1) * (Math.floor(Math.random() * 254) + 1) * (Math.floor(Math.random() * 254) + 1);
+            let color = (Math.floor(Math.random() * 254) + 1) | (Math.floor(Math.random() * 254) + 1)<<8 | (Math.floor(Math.random() * 254) + 1)<<16;
             let c:egret.Shape = new egret.Shape();
             c.graphics.beginFill(color, 100);
             c.graphics.drawCircle(x, y, 10);

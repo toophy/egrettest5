@@ -246,7 +246,7 @@ var Main = (function (_super) {
         this.updateCicleTimer.addEventListener(egret.TimerEvent.TIMER, function () {
             var x = Math.floor(Math.random() * 200);
             var y = Math.floor(Math.random() * 200);
-            var color = (Math.floor(Math.random() * 254) + 1) * (Math.floor(Math.random() * 254) + 1) * (Math.floor(Math.random() * 254) + 1);
+            var color = (Math.floor(Math.random() * 254) + 1) | (Math.floor(Math.random() * 254) + 1) << 8 | (Math.floor(Math.random() * 254) + 1) << 16;
             var c = new egret.Shape();
             c.graphics.beginFill(color, 100);
             c.graphics.drawCircle(x, y, 10);
