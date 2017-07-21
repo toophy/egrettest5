@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "bg_jpg,egret_icon_png,description_json,ctm_jpg,天鹅湖-柴可夫斯基 - 新雅室内乐_mp3",
+			"keys": "bg_jpg,egret_icon_png,description_json,ctm_jpg,天鹅湖-柴可夫斯基 - 新雅室内乐_mp3,b1_png,b2_png,bgGrey_png,bloodBar_png,bloodBarBg_png,boss_png,btn_start_png,buff_blood_png,enemyBullet_png,f1_png,f2_png,game-over_png,hp_png,restart_png,resultBg_png,test_fnt,test_png,title_png,bgFly_jpg",
 			"name": "preload"
 		}
 	],
@@ -31,6 +31,101 @@
 			"url": "assets/天鹅湖-柴可夫斯基 - 新雅室内乐.mp3",
 			"type": "sound",
 			"name": "天鹅湖-柴可夫斯基 - 新雅室内乐_mp3"
+		},
+		{
+			"name": "b1_png",
+			"type": "image",
+			"url": "assets/b1.png"
+		},
+		{
+			"name": "b2_png",
+			"type": "image",
+			"url": "assets/b2.png"
+		},
+		{
+			"name": "bgGrey_png",
+			"type": "image",
+			"url": "assets/bgGrey.png"
+		},
+		{
+			"name": "bloodBar_png",
+			"type": "image",
+			"url": "assets/bloodBar.png"
+		},
+		{
+			"name": "bloodBarBg_png",
+			"type": "image",
+			"url": "assets/bloodBarBg.png"
+		},
+		{
+			"name": "boss_png",
+			"type": "image",
+			"url": "assets/boss.png"
+		},
+		{
+			"name": "btn_start_png",
+			"type": "image",
+			"url": "assets/btn_start.png"
+		},
+		{
+			"name": "buff_blood_png",
+			"type": "image",
+			"url": "assets/buff_blood.png"
+		},
+		{
+			"name": "enemyBullet_png",
+			"type": "image",
+			"url": "assets/enemyBullet.png"
+		},
+		{
+			"name": "f1_png",
+			"type": "image",
+			"url": "assets/f1.png"
+		},
+		{
+			"name": "f2_png",
+			"type": "image",
+			"url": "assets/f2.png"
+		},
+		{
+			"name": "game-over_png",
+			"type": "image",
+			"url": "assets/game-over.png"
+		},
+		{
+			"name": "hp_png",
+			"type": "image",
+			"url": "assets/hp.png"
+		},
+		{
+			"name": "restart_png",
+			"type": "image",
+			"url": "assets/restart.png"
+		},
+		{
+			"name": "resultBg_png",
+			"type": "image",
+			"url": "assets/resultBg.png"
+		},
+		{
+			"name": "test_fnt",
+			"type": "font",
+			"url": "assets/test.fnt"
+		},
+		{
+			"name": "test_png",
+			"type": "image",
+			"url": "assets/test.png"
+		},
+		{
+			"name": "title_png",
+			"type": "image",
+			"url": "assets/title.png"
+		},
+		{
+			"name": "bgFly_jpg",
+			"type": "image",
+			"url": "assets/bgFly.jpg"
 		}
 	]
 }

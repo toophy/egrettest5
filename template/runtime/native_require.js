@@ -12,8 +12,10 @@ var game_file_list = [
 	"libs/modules/socket/socket.js",
 	"libs/modules/egret3d/egret3d.js",
 	"libs/modules/dragonBones/dragonBones.js",
+	"bin-debug/FlyContainer.js",
 	"bin-debug/LoadingUI.js",
 	"bin-debug/Main.js",
+	"bin-debug/TestContainer.js",
 	//----auto game_file_list end----
 ];
 
