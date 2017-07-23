@@ -3703,6 +3703,10 @@ declare namespace egret {
          */
         _bitmapData: BitmapData;
         /**
+         * @private
+         */
+        $rotated: boolean;
+        /**
          * The BitmapData object being referenced.
          * @version Egret 2.4
          * @platform Web,Native
@@ -3742,7 +3746,7 @@ declare namespace egret {
          * @param sourceWidth
          * @param sourceHeight
          */
-        $initData(bitmapX: number, bitmapY: number, bitmapWidth: number, bitmapHeight: number, offsetX: number, offsetY: number, textureWidth: number, textureHeight: number, sourceWidth: number, sourceHeight: number): void;
+        $initData(bitmapX: number, bitmapY: number, bitmapWidth: number, bitmapHeight: number, offsetX: number, offsetY: number, textureWidth: number, textureHeight: number, sourceWidth: number, sourceHeight: number, rotated?: boolean): void;
         /**
          * @deprecated
          */
@@ -5920,6 +5924,7 @@ declare namespace egret {
         height: number;
         /**
          * Original bitmap image.
+         * HTMLImageElement|HTMLCanvasElement|HTMLVideoElement
          * @version Egret 2.4
          * @platform Web,Native
          * @private
@@ -5927,6 +5932,7 @@ declare namespace egret {
          */
         /**
          * 原始位图图像。
+         * HTMLImageElement|HTMLCanvasElement|HTMLVideoElement
          * @version Egret 2.4
          * @platform Web,Native
          * @private
@@ -5966,6 +5972,20 @@ declare namespace egret {
          * webgl纹理生成后，是否删掉原始图像数据
          */
         $deleteSource: boolean;
+        /**
+         * Initializes a BitmapData object to refer to the specified source object.
+         * @param source The source object being referenced.
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language en_US
+         */
+        /**
+         * 创建一个引用指定 source 实例的 BitmapData 对象
+         * @param source 被引用的 source 实例
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language zh_CN
+         */
         constructor(source: any);
         static create(type: "arraybuffer", data: ArrayBuffer): BitmapData;
         static create(type: "base64", data: string): BitmapData;
@@ -9806,7 +9826,6 @@ declare namespace egret.sys {
      */
     let $requestRenderingFlag: boolean;
     /**
-     * @private
      * Egret心跳计时器
      */
     class SystemTicker {
@@ -9862,7 +9881,13 @@ declare namespace egret.sys {
          * @private
          */
         private frameInterval;
+        /**
+         * @private
+         */
         private frameDeltaTime;
+        /**
+         * @private
+         */
         private lastTimeStamp;
         /**
          * @private
@@ -9878,6 +9903,13 @@ declare namespace egret.sys {
          * ticker 花销的时间
          */
         private costEnterFrame;
+        /**
+         * @private
+         * 是否被暂停
+         */
+        private isPaused;
+        pause(): void;
+        resume(): void;
         /**
          * @private
          * 执行一次刷新
@@ -9907,11 +9939,32 @@ declare namespace egret.sys {
          */
         private callLaterAsyncs();
     }
+}
+declare module egret {
     /**
-     * @private
      * 心跳计时器单例
      */
-    let $ticker: SystemTicker;
+    let $ticker: sys.SystemTicker;
+    namespace lifecycle {
+        type LifecyclePlugin = (context: LifecycleContext) => void;
+        /**
+         * @private
+         */
+        let stage: egret.Stage;
+        /**
+         * @private
+         */
+        let contexts: LifecycleContext[];
+        class LifecycleContext {
+            pause(): void;
+            resume(): void;
+            onUpdate?: () => void;
+        }
+        let onResume: () => void;
+        let onPause: () => void;
+        function addLifecycleListener(plugin: LifecyclePlugin): void;
+    }
+    let ticker: sys.SystemTicker;
 }
 /**
  * @private
@@ -10020,6 +10073,10 @@ declare namespace egret.sys {
          * 颜色变换滤镜
          */
         filter: ColorMatrixFilter;
+        /**
+         * 翻转
+         */
+        rotated: boolean;
         /**
          * 绘制一次位图
          */
@@ -10176,6 +10233,18 @@ declare namespace egret.sys {
          * 顶点索引。
          */
         bounds: Rectangle;
+        /**
+         * 使用的混合模式
+         */
+        blendMode: number;
+        /**
+         * 相对透明度
+         */
+        alpha: number;
+        /**
+         * 颜色变换滤镜
+         */
+        filter: ColorMatrixFilter;
         /**
          * 绘制一次位图
          */
