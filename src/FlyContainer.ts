@@ -1,43 +1,3 @@
-// export class GameUtil
-//     {
-//         /**基于矩形的碰撞检测*/
-//         public static hitTest(obj1:egret.DisplayObject,obj2:egret.DisplayObject):boolean
-//         {
-//             var rect1:egret.Rectangle = obj1.getBounds();
-//             var rect2:egret.Rectangle = obj2.getBounds();
-//             rect1.x = obj1.x;
-//             rect1.y = obj1.y;
-//             rect2.x = obj2.x;
-//             rect2.y = obj2.y;
-//             return rect1.intersects(rect2);
-//         }
-//     }
-
-class Map<T> {
-    private items: { [key: string]: T };
-
-    constructor() {
-        this.items = {};
-    }
-
-    add(key: string, value: T): void {
-        this.items[key] = value;
-    }
-
-    has(key: string): boolean {
-        return key in this.items;
-    }
-
-    get(key: string): T {
-        return this.items[key];
-    }
-
-    del(key: string){
-        if ( this.has(key) ){
-            this.items[key] = null;
-        }
-    }
-}
 
 // TypeScript file
 class FlySceneContainer extends egret.Sprite {
@@ -46,10 +6,17 @@ class FlySceneContainer extends egret.Sprite {
     private rootContainer: egret.DisplayObjectContainer;
     private myFlyDragOffsetX: number;
     private myFlyDragOffsetY: number;
+
     private myFly: Flyer;
-    private enemyFly: Flyer[];
-    private enemyBoom: Boom[];
-    private myBoom: Boom[];
+
+    private freeFly: MapNum<Flyer>;
+    private enemyFly: MapNum<Flyer>;
+
+    private freeBoom: MapNum<Boom>;
+    private enemyBoom: MapNum<Boom>;
+    private myBoom: MapNum<Boom>;
+
+
 
     public constructor(root: egret.DisplayObjectContainer) {
         super();
@@ -73,19 +40,22 @@ class FlySceneContainer extends egret.Sprite {
         this.addEventListener(egret.Event.ENTER_FRAME, this.onUpdateFrame, this);
 
         // 敌人
-        this.enemyFly = new Array<Flyer>();
-        for (let i: number = 1; i < 6; i++) {
-            this.makeEnemyFly(i);
-        }
-        this.enemyBoom = new Array<Boom>();
-        this.myBoom = new Array<Boom>();
+        this.freeFly = new MapNum<Flyer>();
+        this.enemyFly = new MapNum<Flyer>();
 
-        let testMap:Map<string> = new Map<string>();
-        testMap.add("aa","111");
-        testMap.add("bb","222");
-        testMap.del("aa");
+        // 子弹
+        this.freeBoom = new MapNum<Boom>();
+        this.enemyBoom = new MapNum<Boom>();
+        this.myBoom = new MapNum<Boom>();
 
-
+        // let testMap: MapNum<string> = new MapNum<string>();
+        // testMap.add(1, "111");
+        // testMap.add(1, "222");
+        // testMap.add(3, "333");
+        // console.log(Object.length);
+        // Object.keys(testMap.items).forEach(key => {
+        //     console.log(testMap.items[key])
+        // })
     }
 
     private onUpdateFrame(evt: egret.Event) {
@@ -97,23 +67,48 @@ class FlySceneContainer extends egret.Sprite {
         //     敌方子弹, 碰撞我的飞机
         //     矩形碰撞函数
         // 飞机碰撞
+        // 
+
+        // 飞机不够多, 再生产
+        if (this.enemyFly.getCount() < 3) {
+            let randCol = Math.floor(Math.random() * 6) + 1;
+            this.createEnemyFly(randCol);
+        }
     }
 
-    public appendBoom(b:Boom) {
-        if ( b.typeCamp==1 ){
-            this.myBoom.push(b);
-        } else {
-            this.enemyBoom.push(b);
+    public appendFlyer(b: Flyer) {
+        if (b.typeCamp != 1) {
+            this.enemyFly.add(b.flyID, b);
         }
+        this.freeFly.del(b.flyID);
         this.addChild(b);
     }
 
-    public removeBoom(b:Boom){
-        if ( b.typeCamp==1 ){
-            this.myBoom.push(b);
-        } else {
-            this.enemyBoom.push(b);
+    public removeFlyer(b: Flyer) {
+        if (b.typeCamp != 1) {
+            this.enemyFly.del(b.flyID);
         }
+        this.freeFly.add(b.flyID, b);
+        this.removeChild(b);
+    }
+
+    public appendBoom(b: Boom) {
+        if (b.typeCamp == 1) {
+            this.myBoom.add(b.boomID, b);
+        } else {
+            this.enemyBoom.add(b.boomID, b);
+        }
+        this.freeBoom.del(b.boomID);
+        this.addChild(b);
+    }
+
+    public removeBoom(b: Boom) {
+        if (b.typeCamp == 1) {
+            this.myBoom.del(b.boomID);
+        } else {
+            this.enemyBoom.del(b.boomID);
+        }
+        this.freeBoom.add(b.boomID, b);
         this.removeChild(b);
     }
 
@@ -135,10 +130,51 @@ class FlySceneContainer extends egret.Sprite {
         this.rootContainer.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onFlyTouchMove, this);
     }
 
-    private makeEnemyFly(col: number) {
-        let e: Flyer = new Flyer(this, "f2_png", this.rootContainer.stage.stageWidth * col * 0.15, 0, 2);
-        this.enemyFly.push(e);
-        this.addChild(e);
+    public createEnemyFly(col: number): Flyer {
+        let fly: Flyer = this.makeFlyer(this.rootContainer.stage.stageWidth * col * 0.15, 0, 2);
+        this.appendFlyer(fly);
+        return fly;
+    }
+
+    public createBoom(x: number, y: number, camp: number): Boom {
+        let bl: Boom = this.makeBoom(x, y, camp);
+        this.appendBoom(bl);
+        return bl;
+    }
+
+    private makeFlyer(x: number, y: number, camp: number): Flyer {
+        if (this.freeFly.getCount() > 0) {
+            let f: Flyer = this.freeFly.items[Object.keys(this.freeFly.items)[0]];
+            f.reset("f2_png", x, y, camp);
+            return f;
+        }
+
+        let e: Flyer = new Flyer(this, "f2_png", x, y, camp);
+        e.flyID = this.freeFly.getMaxKey() + 1;
+        this.freeFly.add(e.flyID, e);
+        return e;
+    }
+
+    private makeBoom(x: number, y: number, camp: number): Boom {
+        if (this.freeBoom.getCount() > 0) {
+            let bl: Boom = this.freeBoom.items[Object.keys(this.freeBoom.items)[0]];
+            if (camp == 1) {
+                bl.reset("b1_png", x, y, camp);
+            } else {
+                bl.reset("b2_png", x, y, camp);
+            }
+            return bl;
+        }
+
+        let bl: Boom;
+        if (camp == 1) {
+            bl = new Boom(this, "b1_png", x, y, camp);
+        } else {
+            bl = new Boom(this, "b2_png", x, y, camp);
+        }
+        bl.boomID = this.freeBoom.getMaxKey() + 1;
+        this.freeBoom.add(bl.boomID, bl);
+        return bl;
     }
 
 }
@@ -156,11 +192,14 @@ class Flyer extends egret.Sprite {
     private shotBoom: egret.Timer;
     private myWidth: number;
     private myHeight: number;
+    public dead: boolean;
+    public flyID: number;
 
     public constructor(root: FlySceneContainer, pic: string, x: number, y: number, camp: number) {
         super();
         this.typeCamp = camp;
         this.rootContainer = root;
+        this.flyID = 0;
         this.reset(pic, x, y, camp);
     }
 
@@ -173,63 +212,95 @@ class Flyer extends egret.Sprite {
     }
 
     public reset(pic: string, x: number, y: number, camp: number) {
-        this.removeChildren();
-        if (this.shotBoom) {
-            this.shotBoom.removeEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
-        }
+        if (this.pic == pic && this.typeCamp == camp) {
+            if (this.shotBoom) {
+                this.shotBoom.stop();
+                this.shotBoom.removeEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom = undefined;
+            }
 
-        this.typeCamp = camp;
-        this.pic = pic;
-        this.startX = x;
-        this.startY = y;
-        this.curHP = 100;
-        this.maxHP = 100;
+            this.startX = x;
+            this.startY = y;
+            this.curHP = 100;
+            this.maxHP = 100;
+            this.dead = false;
 
-        let bmg: egret.Bitmap = new egret.Bitmap(RES.getRes(pic));
-        this.x = x - bmg.width / 2;
-        this.y = y - bmg.height;
-        this.addChild(bmg);
+            this.x = x - this.myWidth / 2;
+            this.y = y - this.myHeight;
 
-        this.myWidth = bmg.width;
-        this.myHeight = bmg.height;
+            if (camp != 1) {
+                this.touchChildren = false;
+                egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
 
-        let sRect: egret.Shape = new egret.Shape();
-        sRect.graphics.lineStyle(1, 0x00ff00);
-        sRect.graphics.drawRect(0, 0, this.myWidth, this.myHeight);
-        sRect.graphics.endFill();
-        this.addChild(sRect);
-
-        if (camp != 1) {
-            this.touchChildren = false;
-            egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
-
-            this.shotBoom = new egret.Timer(500, 0);
-            this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
-            this.shotBoom.start();
+                this.shotBoom = new egret.Timer(500, 0);
+                this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom.start();
+            } else {
+                this.shotBoom = new egret.Timer(200, 0);
+                this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom.start();
+            }
         } else {
-            this.shotBoom = new egret.Timer(200, 0);
-            this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
-            this.shotBoom.start();
+            this.removeChildren();
+            if (this.shotBoom) {
+                this.shotBoom.stop();
+                this.shotBoom.removeEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom = undefined;
+            }
+
+            this.typeCamp = camp;
+            this.pic = pic;
+            this.startX = x;
+            this.startY = y;
+            this.curHP = 100;
+            this.maxHP = 100;
+            this.dead = false;
+
+            let bmg: egret.Bitmap = new egret.Bitmap(RES.getRes(pic));
+            this.x = x - bmg.width / 2;
+            this.y = y - bmg.height;
+            this.addChild(bmg);
+
+            this.myWidth = bmg.width;
+            this.myHeight = bmg.height;
+
+            let sRect: egret.Shape = new egret.Shape();
+            sRect.graphics.lineStyle(1, 0x00ff00);
+            sRect.graphics.drawRect(0, 0, this.myWidth, this.myHeight);
+            sRect.graphics.endFill();
+            this.addChild(sRect);
+
+            if (camp != 1) {
+                this.touchChildren = false;
+                egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
+
+                this.shotBoom = new egret.Timer(500, 0);
+                this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom.start();
+            } else {
+                this.shotBoom = new egret.Timer(200, 0);
+                this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom.start();
+            }
         }
     }
 
     private tweenEnd() {
-        this.reset(this.pic, this.startX, this.startY, this.typeCamp);
+        if (this.shotBoom) {
+            this.shotBoom.stop();
+            this.shotBoom.removeEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+            this.shotBoom = undefined;
+        }
+        this.rootContainer.removeFlyer(this);
     }
 
     private onShotBoom(evt: egret.TimerEvent) {
         if (this.typeCamp == 1) {
-            let bl: Boom = new Boom(this.rootContainer, "b1_png", this.x + 10, this.y + this.myHeight / 2, this.typeCamp);
-            this.rootContainer.addChild(bl);
-
-            let br: Boom = new Boom(this.rootContainer, "b1_png", this.x + this.myWidth - 10, this.y + this.myHeight / 2, this.typeCamp);
-            this.rootContainer.addChild(br);
+            this.rootContainer.createBoom(this.x + 10, this.y + this.myHeight / 2, this.typeCamp);
+            this.rootContainer.createBoom(this.x + this.myWidth - 10, this.y + this.myHeight / 2, this.typeCamp);
         } else {
-            let bl: Boom = new Boom(this.rootContainer, "b2_png", this.x + 12, this.y + 0 + this.myHeight * 0.95, this.typeCamp);
-            this.rootContainer.addChild(bl);
-
-            let br: Boom = new Boom(this.rootContainer, "b2_png", this.x + this.myWidth - 12, this.y + 0 + this.myHeight * 0.95, this.typeCamp);
-            this.rootContainer.addChild(br);
+            this.rootContainer.createBoom(this.x + 12, this.y + 0 + this.myHeight * 0.95, this.typeCamp);
+            this.rootContainer.createBoom(this.x + this.myWidth - 12, this.y + 0 + this.myHeight * 0.95, this.typeCamp);
         }
     }
 }
@@ -243,12 +314,15 @@ class Boom extends egret.Sprite {
     private pic: string;
     private startX: number;
     private startY: number;
+    public dead: boolean;
+    public boomID: number;
 
     public constructor(root: FlySceneContainer, pic: string, x: number, y: number, camp: number) {
         super();
         this.typeCamp = camp;
         this.touchChildren = false;
         this.rootContainer = root;
+        this.boomID = 0;
         this.reset(pic, x, y, camp);
     }
 
@@ -257,31 +331,44 @@ class Boom extends egret.Sprite {
     }
 
     public reset(pic: string, x: number, y: number, camp: number) {
-        this.removeChildren();
+        if (this.pic == pic && this.typeCamp == camp) {
+            this.startX = x;
+            this.startY = y;
+            this.dead = false;
 
-        this.typeCamp = camp;
-        this.pic = pic;
-        this.startX = x;
-        this.startY = y;
-
-        let bmg: egret.Bitmap = new egret.Bitmap(RES.getRes(pic));
-        this.x = x - bmg.width / 2;
-        this.y = y - bmg.height;
-        this.addChild(bmg);
-
-        let sRect: egret.Shape = new egret.Shape();
-        sRect.graphics.lineStyle(1, 0x0000ff);
-        sRect.graphics.drawRect(0, 0, bmg.width, bmg.height);
-        sRect.graphics.endFill();
-        this.addChild(sRect);
-
-        if (camp != 1) {
-            egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
+            if (camp != 1) {
+                egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
+            } else {
+                egret.Tween.get(this).to({ y: -100 }, 3000).call(this.tweenEnd, this);
+            }
         } else {
-            egret.Tween.get(this).to({ y: -100 }, 3000).call(this.tweenEnd, this);
+            this.removeChildren();
+
+            this.typeCamp = camp;
+            this.pic = pic;
+            this.startX = x;
+            this.startY = y;
+            this.dead = false;
+
+            let bmg: egret.Bitmap = new egret.Bitmap(RES.getRes(pic));
+            this.x = x - bmg.width / 2;
+            this.y = y - bmg.height;
+            this.addChild(bmg);
+
+            let sRect: egret.Shape = new egret.Shape();
+            sRect.graphics.lineStyle(1, 0x0000ff);
+            sRect.graphics.drawRect(0, 0, bmg.width, bmg.height);
+            sRect.graphics.endFill();
+            this.addChild(sRect);
+
+            if (camp != 1) {
+                egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
+            } else {
+                egret.Tween.get(this).to({ y: -100 }, 3000).call(this.tweenEnd, this);
+            }
         }
     }
     private tweenEnd() {
-        this.rootContainer.removeChild(this);
+        this.rootContainer.removeBoom(this);
     }
 }

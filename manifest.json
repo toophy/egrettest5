@@ -12,7 +12,10 @@
 		"libs/modules/dragonBones/dragonBones.js"
 	],
 	"game": [
+		"bin-debug/FlyContainer.js",
 		"bin-debug/LoadingUI.js",
-		"bin-debug/Main.js"
+		"bin-debug/Main.js",
+		"bin-debug/TestContainer.js",
+		"bin-debug/Util.js"
 	]
 }

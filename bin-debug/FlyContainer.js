@@ -1,17 +1,3 @@
-// export class GameUtil
-//     {
-//         /**基于矩形的碰撞检测*/
-//         public static hitTest(obj1:egret.DisplayObject,obj2:egret.DisplayObject):boolean
-//         {
-//             var rect1:egret.Rectangle = obj1.getBounds();
-//             var rect2:egret.Rectangle = obj2.getBounds();
-//             rect1.x = obj1.x;
-//             rect1.y = obj1.y;
-//             rect2.x = obj2.x;
-//             rect2.y = obj2.y;
-//             return rect1.intersects(rect2);
-//         }
-//     }
 var __reflect = (this && this.__reflect) || function (p, c, t) {
     p.__class__ = c, t ? t.push(c) : t = [c], p.__types__ = p.__types__ ? t.concat(p.__types__) : t;
 };
@@ -20,27 +6,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Map = (function () {
-    function Map() {
-        this.items = {};
-    }
-    Map.prototype.add = function (key, value) {
-        this.items[key] = value;
-    };
-    Map.prototype.has = function (key) {
-        return key in this.items;
-    };
-    Map.prototype.get = function (key) {
-        return this.items[key];
-    };
-    Map.prototype.del = function (key) {
-        if (this.has(key)) {
-            this.items[key] = null;
-        }
-    };
-    return Map;
-}());
-__reflect(Map.prototype, "Map");
 // TypeScript file
 var FlySceneContainer = (function (_super) {
     __extends(FlySceneContainer, _super);
@@ -63,16 +28,20 @@ var FlySceneContainer = (function (_super) {
         this.addEventListener(egret.TouchEvent.TOUCH_END, this.onFlyTouchEnd, this);
         this.addEventListener(egret.Event.ENTER_FRAME, this.onUpdateFrame, this);
         // 敌人
-        this.enemyFly = new Array();
-        for (var i = 1; i < 6; i++) {
-            this.makeEnemyFly(i);
-        }
-        this.enemyBoom = new Array();
-        this.myBoom = new Array();
-        var testMap = new Map();
-        testMap.add("aa", "111");
-        testMap.add("bb", "222");
-        testMap.del("aa");
+        this.freeFly = new MapNum();
+        this.enemyFly = new MapNum();
+        // 子弹
+        this.freeBoom = new MapNum();
+        this.enemyBoom = new MapNum();
+        this.myBoom = new MapNum();
+        // let testMap: MapNum<string> = new MapNum<string>();
+        // testMap.add(1, "111");
+        // testMap.add(1, "222");
+        // testMap.add(3, "333");
+        // console.log(Object.length);
+        // Object.keys(testMap.items).forEach(key => {
+        //     console.log(testMap.items[key])
+        // })
     };
     FlySceneContainer.prototype.onUpdateFrame = function (evt) {
         // 判断碰撞
@@ -83,23 +52,45 @@ var FlySceneContainer = (function (_super) {
         //     敌方子弹, 碰撞我的飞机
         //     矩形碰撞函数
         // 飞机碰撞
+        // 
+        // 飞机不够多, 再生产
+        if (this.enemyFly.getCount() < 3) {
+            var randCol = Math.floor(Math.random() * 6) + 1;
+            this.createEnemyFly(randCol);
+        }
+    };
+    FlySceneContainer.prototype.appendFlyer = function (b) {
+        if (b.typeCamp != 1) {
+            this.enemyFly.add(b.flyID, b);
+        }
+        this.freeFly.del(b.flyID);
+        this.addChild(b);
+    };
+    FlySceneContainer.prototype.removeFlyer = function (b) {
+        if (b.typeCamp != 1) {
+            this.enemyFly.del(b.flyID);
+        }
+        this.freeFly.add(b.flyID, b);
+        this.removeChild(b);
     };
     FlySceneContainer.prototype.appendBoom = function (b) {
         if (b.typeCamp == 1) {
-            this.myBoom.push(b);
+            this.myBoom.add(b.boomID, b);
         }
         else {
-            this.enemyBoom.push(b);
+            this.enemyBoom.add(b.boomID, b);
         }
+        this.freeBoom.del(b.boomID);
         this.addChild(b);
     };
     FlySceneContainer.prototype.removeBoom = function (b) {
         if (b.typeCamp == 1) {
-            this.myBoom.push(b);
+            this.myBoom.del(b.boomID);
         }
         else {
-            this.enemyBoom.push(b);
+            this.enemyBoom.del(b.boomID);
         }
+        this.freeBoom.add(b.boomID, b);
         this.removeChild(b);
     };
     FlySceneContainer.prototype.onFlyTouchBegin = function (evt) {
@@ -115,10 +106,48 @@ var FlySceneContainer = (function (_super) {
     FlySceneContainer.prototype.onFlyTouchEnd = function (evt) {
         this.rootContainer.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onFlyTouchMove, this);
     };
-    FlySceneContainer.prototype.makeEnemyFly = function (col) {
-        var e = new Flyer(this, "f2_png", this.rootContainer.stage.stageWidth * col * 0.15, 0, 2);
-        this.enemyFly.push(e);
-        this.addChild(e);
+    FlySceneContainer.prototype.createEnemyFly = function (col) {
+        var fly = this.makeFlyer(this.rootContainer.stage.stageWidth * col * 0.15, 0, 2);
+        this.appendFlyer(fly);
+        return fly;
+    };
+    FlySceneContainer.prototype.createBoom = function (x, y, camp) {
+        var bl = this.makeBoom(x, y, camp);
+        this.appendBoom(bl);
+        return bl;
+    };
+    FlySceneContainer.prototype.makeFlyer = function (x, y, camp) {
+        if (this.freeFly.getCount() > 0) {
+            var f = this.freeFly.items[Object.keys(this.freeFly.items)[0]];
+            f.reset("f2_png", x, y, camp);
+            return f;
+        }
+        var e = new Flyer(this, "f2_png", x, y, camp);
+        e.flyID = this.freeFly.getMaxKey() + 1;
+        this.freeFly.add(e.flyID, e);
+        return e;
+    };
+    FlySceneContainer.prototype.makeBoom = function (x, y, camp) {
+        if (this.freeBoom.getCount() > 0) {
+            var bl_1 = this.freeBoom.items[Object.keys(this.freeBoom.items)[0]];
+            if (camp == 1) {
+                bl_1.reset("b1_png", x, y, camp);
+            }
+            else {
+                bl_1.reset("b2_png", x, y, camp);
+            }
+            return bl_1;
+        }
+        var bl;
+        if (camp == 1) {
+            bl = new Boom(this, "b1_png", x, y, camp);
+        }
+        else {
+            bl = new Boom(this, "b2_png", x, y, camp);
+        }
+        bl.boomID = this.freeBoom.getMaxKey() + 1;
+        this.freeBoom.add(bl.boomID, bl);
+        return bl;
     };
     return FlySceneContainer;
 }(egret.Sprite));
@@ -129,6 +158,7 @@ var Flyer = (function (_super) {
         var _this = _super.call(this) || this;
         _this.typeCamp = camp;
         _this.rootContainer = root;
+        _this.flyID = 0;
         _this.reset(pic, x, y, camp);
         return _this;
     }
@@ -139,55 +169,87 @@ var Flyer = (function (_super) {
         return this.typeCamp != f.typeCamp;
     };
     Flyer.prototype.reset = function (pic, x, y, camp) {
-        this.removeChildren();
-        if (this.shotBoom) {
-            this.shotBoom.removeEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
-        }
-        this.typeCamp = camp;
-        this.pic = pic;
-        this.startX = x;
-        this.startY = y;
-        this.curHP = 100;
-        this.maxHP = 100;
-        var bmg = new egret.Bitmap(RES.getRes(pic));
-        this.x = x - bmg.width / 2;
-        this.y = y - bmg.height;
-        this.addChild(bmg);
-        this.myWidth = bmg.width;
-        this.myHeight = bmg.height;
-        var sRect = new egret.Shape();
-        sRect.graphics.lineStyle(1, 0x00ff00);
-        sRect.graphics.drawRect(0, 0, this.myWidth, this.myHeight);
-        sRect.graphics.endFill();
-        this.addChild(sRect);
-        if (camp != 1) {
-            this.touchChildren = false;
-            egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
-            this.shotBoom = new egret.Timer(500, 0);
-            this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
-            this.shotBoom.start();
+        if (this.pic == pic && this.typeCamp == camp) {
+            if (this.shotBoom) {
+                this.shotBoom.stop();
+                this.shotBoom.removeEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom = undefined;
+            }
+            this.startX = x;
+            this.startY = y;
+            this.curHP = 100;
+            this.maxHP = 100;
+            this.dead = false;
+            this.x = x - this.myWidth / 2;
+            this.y = y - this.myHeight;
+            if (camp != 1) {
+                this.touchChildren = false;
+                egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
+                this.shotBoom = new egret.Timer(500, 0);
+                this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom.start();
+            }
+            else {
+                this.shotBoom = new egret.Timer(200, 0);
+                this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom.start();
+            }
         }
         else {
-            this.shotBoom = new egret.Timer(200, 0);
-            this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
-            this.shotBoom.start();
+            this.removeChildren();
+            if (this.shotBoom) {
+                this.shotBoom.stop();
+                this.shotBoom.removeEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom = undefined;
+            }
+            this.typeCamp = camp;
+            this.pic = pic;
+            this.startX = x;
+            this.startY = y;
+            this.curHP = 100;
+            this.maxHP = 100;
+            this.dead = false;
+            var bmg = new egret.Bitmap(RES.getRes(pic));
+            this.x = x - bmg.width / 2;
+            this.y = y - bmg.height;
+            this.addChild(bmg);
+            this.myWidth = bmg.width;
+            this.myHeight = bmg.height;
+            var sRect = new egret.Shape();
+            sRect.graphics.lineStyle(1, 0x00ff00);
+            sRect.graphics.drawRect(0, 0, this.myWidth, this.myHeight);
+            sRect.graphics.endFill();
+            this.addChild(sRect);
+            if (camp != 1) {
+                this.touchChildren = false;
+                egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
+                this.shotBoom = new egret.Timer(500, 0);
+                this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom.start();
+            }
+            else {
+                this.shotBoom = new egret.Timer(200, 0);
+                this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+                this.shotBoom.start();
+            }
         }
     };
     Flyer.prototype.tweenEnd = function () {
-        this.reset(this.pic, this.startX, this.startY, this.typeCamp);
+        if (this.shotBoom) {
+            this.shotBoom.stop();
+            this.shotBoom.removeEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
+            this.shotBoom = undefined;
+        }
+        this.rootContainer.removeFlyer(this);
     };
     Flyer.prototype.onShotBoom = function (evt) {
         if (this.typeCamp == 1) {
-            var bl = new Boom(this.rootContainer, "b1_png", this.x + 10, this.y + this.myHeight / 2, this.typeCamp);
-            this.rootContainer.addChild(bl);
-            var br = new Boom(this.rootContainer, "b1_png", this.x + this.myWidth - 10, this.y + this.myHeight / 2, this.typeCamp);
-            this.rootContainer.addChild(br);
+            this.rootContainer.createBoom(this.x + 10, this.y + this.myHeight / 2, this.typeCamp);
+            this.rootContainer.createBoom(this.x + this.myWidth - 10, this.y + this.myHeight / 2, this.typeCamp);
         }
         else {
-            var bl = new Boom(this.rootContainer, "b2_png", this.x + 12, this.y + 0 + this.myHeight * 0.95, this.typeCamp);
-            this.rootContainer.addChild(bl);
-            var br = new Boom(this.rootContainer, "b2_png", this.x + this.myWidth - 12, this.y + 0 + this.myHeight * 0.95, this.typeCamp);
-            this.rootContainer.addChild(br);
+            this.rootContainer.createBoom(this.x + 12, this.y + 0 + this.myHeight * 0.95, this.typeCamp);
+            this.rootContainer.createBoom(this.x + this.myWidth - 12, this.y + 0 + this.myHeight * 0.95, this.typeCamp);
         }
     };
     return Flyer;
@@ -200,6 +262,7 @@ var Boom = (function (_super) {
         _this.typeCamp = camp;
         _this.touchChildren = false;
         _this.rootContainer = root;
+        _this.boomID = 0;
         _this.reset(pic, x, y, camp);
         return _this;
     }
@@ -207,29 +270,43 @@ var Boom = (function (_super) {
         return this.typeCamp != f.typeCamp;
     };
     Boom.prototype.reset = function (pic, x, y, camp) {
-        this.removeChildren();
-        this.typeCamp = camp;
-        this.pic = pic;
-        this.startX = x;
-        this.startY = y;
-        var bmg = new egret.Bitmap(RES.getRes(pic));
-        this.x = x - bmg.width / 2;
-        this.y = y - bmg.height;
-        this.addChild(bmg);
-        var sRect = new egret.Shape();
-        sRect.graphics.lineStyle(1, 0x0000ff);
-        sRect.graphics.drawRect(0, 0, bmg.width, bmg.height);
-        sRect.graphics.endFill();
-        this.addChild(sRect);
-        if (camp != 1) {
-            egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
+        if (this.pic == pic && this.typeCamp == camp) {
+            this.startX = x;
+            this.startY = y;
+            this.dead = false;
+            if (camp != 1) {
+                egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
+            }
+            else {
+                egret.Tween.get(this).to({ y: -100 }, 3000).call(this.tweenEnd, this);
+            }
         }
         else {
-            egret.Tween.get(this).to({ y: -100 }, 3000).call(this.tweenEnd, this);
+            this.removeChildren();
+            this.typeCamp = camp;
+            this.pic = pic;
+            this.startX = x;
+            this.startY = y;
+            this.dead = false;
+            var bmg = new egret.Bitmap(RES.getRes(pic));
+            this.x = x - bmg.width / 2;
+            this.y = y - bmg.height;
+            this.addChild(bmg);
+            var sRect = new egret.Shape();
+            sRect.graphics.lineStyle(1, 0x0000ff);
+            sRect.graphics.drawRect(0, 0, bmg.width, bmg.height);
+            sRect.graphics.endFill();
+            this.addChild(sRect);
+            if (camp != 1) {
+                egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
+            }
+            else {
+                egret.Tween.get(this).to({ y: -100 }, 3000).call(this.tweenEnd, this);
+            }
         }
     };
     Boom.prototype.tweenEnd = function () {
-        this.rootContainer.removeChild(this);
+        this.rootContainer.removeBoom(this);
     };
     return Boom;
 }(egret.Sprite));
