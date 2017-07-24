@@ -115,12 +115,18 @@ class FlySceneContainer extends egret.Sprite {
 
     public removeBoom(b: Boom) {
         if (b.typeCamp == 1) {
-            this.myBoom.del(b.boomID);
+            if (this.myBoom.has(b.boomID)) {
+                this.myBoom.del(b.boomID);
+                this.freeBoom.add(b.boomID, b);
+                this.removeChild(b);
+            }
         } else {
-            this.enemyBoom.del(b.boomID);
+            if (this.enemyBoom.has(b.boomID)) {
+                this.enemyBoom.del(b.boomID);
+                this.freeBoom.add(b.boomID, b);
+                this.removeChild(b);
+            }
         }
-        this.freeBoom.add(b.boomID, b);
-        this.removeChild(b);
     }
 
 
@@ -327,7 +333,7 @@ class Boom extends egret.Sprite {
     private startY: number;
     public dead: boolean;
     public boomID: number;
-    private tw:egret.Tween;
+    private tw: egret.Tween;
 
     public constructor(root: FlySceneContainer, pic: string, x: number, y: number, camp: number) {
         super();
@@ -382,16 +388,20 @@ class Boom extends egret.Sprite {
     }
     private tweenEnd() {
         if (!this.dead) {
-            this.tw.setPaused(true);
-            this.tw = undefined;
+            if (this.tw) {
+                this.tw.setPaused(true);
+                this.tw = undefined;
+            }
             this.rootContainer.removeBoom(this);
         }
     }
     public killed() {
         if (!this.dead) {
             this.dead = true;
-            this.tw.setPaused(true);
-            this.tw = undefined;
+            if (this.tw) {
+                this.tw.setPaused(true);
+                this.tw = undefined;
+            }
             this.rootContainer.removeBoom(this);
         }
     }

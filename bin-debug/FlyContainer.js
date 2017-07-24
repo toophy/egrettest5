@@ -97,13 +97,19 @@ var FlySceneContainer = (function (_super) {
     };
     FlySceneContainer.prototype.removeBoom = function (b) {
         if (b.typeCamp == 1) {
-            this.myBoom.del(b.boomID);
+            if (this.myBoom.has(b.boomID)) {
+                this.myBoom.del(b.boomID);
+                this.freeBoom.add(b.boomID, b);
+                this.removeChild(b);
+            }
         }
         else {
-            this.enemyBoom.del(b.boomID);
+            if (this.enemyBoom.has(b.boomID)) {
+                this.enemyBoom.del(b.boomID);
+                this.freeBoom.add(b.boomID, b);
+                this.removeChild(b);
+            }
         }
-        this.freeBoom.add(b.boomID, b);
-        this.removeChild(b);
     };
     FlySceneContainer.prototype.onFlyTouchBegin = function (evt) {
         var pos = this.localToGlobal(this.myFly.x, this.myFly.y);
@@ -319,16 +325,20 @@ var Boom = (function (_super) {
     };
     Boom.prototype.tweenEnd = function () {
         if (!this.dead) {
-            this.tw.setPaused(true);
-            this.tw = undefined;
+            if (this.tw) {
+                this.tw.setPaused(true);
+                this.tw = undefined;
+            }
             this.rootContainer.removeBoom(this);
         }
     };
     Boom.prototype.killed = function () {
         if (!this.dead) {
             this.dead = true;
-            this.tw.setPaused(true);
-            this.tw = undefined;
+            if (this.tw) {
+                this.tw.setPaused(true);
+                this.tw = undefined;
+            }
             this.rootContainer.removeBoom(this);
         }
     };
