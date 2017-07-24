@@ -61,8 +61,19 @@ class FlySceneContainer extends egret.Sprite {
     private onUpdateFrame(evt: egret.Event) {
         // 判断碰撞
         // 我的飞机子弹
-        //     子弹都是矩形, 绘制矩形范围
-        //     我的子弹, 碰撞敌方飞机
+        let myBooms = Object.keys(this.myBoom.items);
+        for (let i of myBooms) {
+            let enemyFlys = Object.keys(this.enemyFly.items);
+            for (let j of enemyFlys) {
+                if (GameUtil.hitTest(this.myBoom.items[i], this.enemyFly.items[j])) {
+                    // 飞机销毁
+                    this.myBoom.items[i].killed();
+                    // 子弹销毁
+                    break;
+                }
+            }
+        }
+
         // 敌方飞机子弹
         //     敌方子弹, 碰撞我的飞机
         //     矩形碰撞函数
@@ -316,6 +327,7 @@ class Boom extends egret.Sprite {
     private startY: number;
     public dead: boolean;
     public boomID: number;
+    private tw:egret.Tween;
 
     public constructor(root: FlySceneContainer, pic: string, x: number, y: number, camp: number) {
         super();
@@ -337,9 +349,9 @@ class Boom extends egret.Sprite {
             this.dead = false;
 
             if (camp != 1) {
-                egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
+                this.tw = egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
             } else {
-                egret.Tween.get(this).to({ y: -100 }, 3000).call(this.tweenEnd, this);
+                this.tw = egret.Tween.get(this).to({ y: -100 }, 3000).call(this.tweenEnd, this);
             }
         } else {
             this.removeChildren();
@@ -362,13 +374,25 @@ class Boom extends egret.Sprite {
             this.addChild(sRect);
 
             if (camp != 1) {
-                egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
+                this.tw = egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
             } else {
-                egret.Tween.get(this).to({ y: -100 }, 3000).call(this.tweenEnd, this);
+                this.tw = egret.Tween.get(this).to({ y: -100 }, 3000).call(this.tweenEnd, this);
             }
         }
     }
     private tweenEnd() {
-        this.rootContainer.removeBoom(this);
+        if (!this.dead) {
+            this.tw.setPaused(true);
+            this.tw = undefined;
+            this.rootContainer.removeBoom(this);
+        }
+    }
+    public killed() {
+        if (!this.dead) {
+            this.dead = true;
+            this.tw.setPaused(true);
+            this.tw = undefined;
+            this.rootContainer.removeBoom(this);
+        }
     }
 }

@@ -1,21 +1,23 @@
-// TypeScript file
-// export class GameUtil
-//     {
-//         /**基于矩形的碰撞检测*/
-//         public static hitTest(obj1:egret.DisplayObject,obj2:egret.DisplayObject):boolean
-//         {
-//             var rect1:egret.Rectangle = obj1.getBounds();
-//             var rect2:egret.Rectangle = obj2.getBounds();
-//             rect1.x = obj1.x;
-//             rect1.y = obj1.y;
-//             rect2.x = obj2.x;
-//             rect2.y = obj2.y;
-//             return rect1.intersects(rect2);
-//         }
-//     }
 var __reflect = (this && this.__reflect) || function (p, c, t) {
     p.__class__ = c, t ? t.push(c) : t = [c], p.__types__ = p.__types__ ? t.concat(p.__types__) : t;
 };
+// TypeScript file
+var GameUtil = (function () {
+    function GameUtil() {
+    }
+    /**基于矩形的碰撞检测*/
+    GameUtil.hitTest = function (obj1, obj2) {
+        var rect1 = obj1.getBounds();
+        var rect2 = obj2.getBounds();
+        rect1.x = obj1.x;
+        rect1.y = obj1.y;
+        rect2.x = obj2.x;
+        rect2.y = obj2.y;
+        return rect1.intersects(rect2);
+    };
+    return GameUtil;
+}());
+__reflect(GameUtil.prototype, "GameUtil");
 var Dictionary = (function () {
     function Dictionary(init) {
         this._keys = [];
