@@ -66,22 +66,24 @@ class FlySceneContainer extends egret.Sprite {
             let enemyFlys = Object.keys(this.enemyFly.items);
             for (let j of enemyFlys) {
                 if (GameUtil.hitTest(this.myBoom.items[i], this.enemyFly.items[j])) {
-                    // 飞机销毁
+                    this.enemyFly.items[j].onShot();
                     this.myBoom.items[i].killed();
-                    // 子弹销毁
                     break;
                 }
             }
         }
 
         // 敌方飞机子弹
-        //     敌方子弹, 碰撞我的飞机
-        //     矩形碰撞函数
-        // 飞机碰撞
-        // 
+        let enemyBooms = Object.keys(this.enemyBoom.items);
+        for (let i of enemyBooms) {
+            if (GameUtil.hitTest(this.enemyBoom.items[i], this.myFly)) {
+                this.myFly.onShot();
+                this.enemyBoom.items[i].killed();
+            }
+        }
 
         // 飞机不够多, 再生产
-        if (this.enemyFly.getCount() < 3) {
+        if (this.enemyFly.getCount() < 2) {
             let randCol = Math.floor(Math.random() * 6) + 1;
             this.createEnemyFly(randCol);
         }
@@ -90,16 +92,16 @@ class FlySceneContainer extends egret.Sprite {
     public appendFlyer(b: Flyer) {
         if (b.typeCamp != 1) {
             this.enemyFly.add(b.flyID, b);
+            this.freeFly.del(b.flyID);
         }
-        this.freeFly.del(b.flyID);
         this.addChild(b);
     }
 
     public removeFlyer(b: Flyer) {
         if (b.typeCamp != 1) {
             this.enemyFly.del(b.flyID);
+             this.freeFly.add(b.flyID, b);
         }
-        this.freeFly.add(b.flyID, b);
         this.removeChild(b);
     }
 
@@ -131,16 +133,21 @@ class FlySceneContainer extends egret.Sprite {
 
 
     private onFlyTouchBegin(evt: egret.TouchEvent) {
-        let pos = this.localToGlobal(this.myFly.x, this.myFly.y);
+        if(!this.myFly.dead){
+let pos = this.localToGlobal(this.myFly.x, this.myFly.y);
         this.myFlyDragOffsetX = evt.stageX - pos.x;
         this.myFlyDragOffsetY = evt.stageY - pos.y;
 
         this.rootContainer.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onFlyTouchMove, this);
+        }
+        
     }
 
     private onFlyTouchMove(evt: egret.TouchEvent) {
+        if(!this.myFly.dead){
         let pos = this.globalToLocal(evt.stageX - this.myFlyDragOffsetX, evt.stageY - this.myFlyDragOffsetY);
         this.myFly.moveTo(pos.x, pos.y);
+        }
     }
 
     private onFlyTouchEnd(evt: egret.TouchEvent) {
@@ -211,12 +218,15 @@ class Flyer extends egret.Sprite {
     private myHeight: number;
     public dead: boolean;
     public flyID: number;
+    private tw: egret.Tween;
+    private tip: egret.TextField;
 
     public constructor(root: FlySceneContainer, pic: string, x: number, y: number, camp: number) {
         super();
         this.typeCamp = camp;
         this.rootContainer = root;
         this.flyID = 0;
+        this.tip = new egret.TextField();
         this.reset(pic, x, y, camp);
     }
 
@@ -235,24 +245,30 @@ class Flyer extends egret.Sprite {
                 this.shotBoom.removeEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
                 this.shotBoom = undefined;
             }
+            if (this.tw) {
+                this.tw.setPaused(true);
+                this.tw = undefined;
+            }
 
             this.startX = x;
             this.startY = y;
-            this.curHP = 100;
-            this.maxHP = 100;
+            this.curHP = this.maxHP;
             this.dead = false;
 
             this.x = x - this.myWidth / 2;
             this.y = y - this.myHeight;
 
             if (camp != 1) {
+                this.touchEnabled = false;
                 this.touchChildren = false;
-                egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
+                this.tw = egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
 
-                this.shotBoom = new egret.Timer(500, 0);
+                this.shotBoom = new egret.Timer(1000, 0);
                 this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
                 this.shotBoom.start();
             } else {
+                this.touchEnabled = true;
+                this.touchChildren = false;
                 this.shotBoom = new egret.Timer(200, 0);
                 this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
                 this.shotBoom.start();
@@ -269,8 +285,14 @@ class Flyer extends egret.Sprite {
             this.pic = pic;
             this.startX = x;
             this.startY = y;
-            this.curHP = 100;
-            this.maxHP = 100;
+            
+            if (this.typeCamp==1){
+                this.maxHP = 10;
+            } else {
+                this.maxHP = 3;
+            }
+            this.curHP = this.maxHP;
+            
             this.dead = false;
 
             let bmg: egret.Bitmap = new egret.Bitmap(RES.getRes(pic));
@@ -281,20 +303,17 @@ class Flyer extends egret.Sprite {
             this.myWidth = bmg.width;
             this.myHeight = bmg.height;
 
-            let sRect: egret.Shape = new egret.Shape();
-            sRect.graphics.lineStyle(1, 0x00ff00);
-            sRect.graphics.drawRect(0, 0, this.myWidth, this.myHeight);
-            sRect.graphics.endFill();
-            this.addChild(sRect);
-
             if (camp != 1) {
+                this.touchEnabled = false;
                 this.touchChildren = false;
-                egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
+                this.tw = egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
 
-                this.shotBoom = new egret.Timer(500, 0);
+                this.shotBoom = new egret.Timer(1000, 0);
                 this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
                 this.shotBoom.start();
             } else {
+                this.touchEnabled = true;
+                this.touchChildren = false;
                 this.shotBoom = new egret.Timer(200, 0);
                 this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
                 this.shotBoom.start();
@@ -309,6 +328,54 @@ class Flyer extends egret.Sprite {
             this.shotBoom = undefined;
         }
         this.rootContainer.removeFlyer(this);
+    }
+
+    public onShot() {
+        if (!this.dead) {
+
+            if (this.typeCamp == 1) {
+                this.tip.visible = true;
+                this.tip.text = "-1";
+                this.tip.bold = true;
+                this.tip.size = 30;
+                this.tip.textColor = 0x881100;
+                this.tip.x = this.width / 2;
+                this.tip.y = 0;
+                if (this.getChildIndex(this.tip) == -1) {
+                    this.addChild(this.tip);
+                }
+                egret.Tween.get(this.tip).to({ y: -100 }, 1000, egret.Ease.backInOut).to({ visible: false });
+            }
+
+            this.curHP--;
+            if (this.curHP <= 0) {
+                this.killed();
+            }
+        }
+    }
+
+    public killed() {
+        if (!this.dead) {
+            if (this.typeCamp == 1) {
+                this.tip.visible = true;
+                this.tip.text = "Game Over";
+                this.tip.textColor = 0x881100;
+                this.tip.x = this.width / 2;
+                this.tip.y = 0;
+                if (this.getChildIndex(this.tip) == -1) {
+                    this.addChild(this.tip);
+                }
+                egret.Tween.get(this.tip).to({ y: -400 }, 2000, egret.Ease.backInOut).to({ visible: false });
+            }
+
+            this.curHP = 0;
+            this.dead = true;
+            if (this.tw) {
+                this.tw.setPaused(true);
+                this.tw = undefined;
+            }
+            this.rootContainer.removeFlyer(this);
+        }
     }
 
     private onShotBoom(evt: egret.TimerEvent) {
@@ -350,9 +417,16 @@ class Boom extends egret.Sprite {
 
     public reset(pic: string, x: number, y: number, camp: number) {
         if (this.pic == pic && this.typeCamp == camp) {
+            if (this.tw) {
+                this.tw.setPaused(true);
+                this.tw = undefined;
+            }
             this.startX = x;
             this.startY = y;
             this.dead = false;
+
+            this.x = x - this.width / 2;
+            this.y = y - this.height;
 
             if (camp != 1) {
                 this.tw = egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
@@ -372,12 +446,6 @@ class Boom extends egret.Sprite {
             this.x = x - bmg.width / 2;
             this.y = y - bmg.height;
             this.addChild(bmg);
-
-            let sRect: egret.Shape = new egret.Shape();
-            sRect.graphics.lineStyle(1, 0x0000ff);
-            sRect.graphics.drawRect(0, 0, bmg.width, bmg.height);
-            sRect.graphics.endFill();
-            this.addChild(sRect);
 
             if (camp != 1) {
                 this.tw = egret.Tween.get(this).to({ y: this.startY + 1200 }, 3000).call(this.tweenEnd, this);
