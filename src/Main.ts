@@ -36,6 +36,7 @@ class Main extends egret.DisplayObjectContainer {
     private loadingView: LoadingUI;
     private testContainer: TestContainer;
     private flySceneContainer: FlySceneContainer;
+    private gameMapContainer: GameMapContainer;
    
 
     public constructor() {
@@ -124,9 +125,13 @@ class Main extends egret.DisplayObjectContainer {
         // this.testContainer.createScene();
         // this.addChild(this.testContainer);
 
-        this.flySceneContainer = new FlySceneContainer(this);
-        this.flySceneContainer.createScene();
-        this.addChild(this.flySceneContainer);
+        // this.flySceneContainer = new FlySceneContainer(this);
+        // this.flySceneContainer.createScene();
+        // this.addChild(this.flySceneContainer);
+
+        this.gameMapContainer = new GameMapContainer(this);
+        this.gameMapContainer.createScene();
+        this.addChild(this.gameMapContainer);
 
 
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。

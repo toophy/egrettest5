@@ -77,15 +77,15 @@ var FlySceneContainer = (function (_super) {
     FlySceneContainer.prototype.appendFlyer = function (b) {
         if (b.typeCamp != 1) {
             this.enemyFly.add(b.flyID, b);
+            this.freeFly.del(b.flyID);
         }
-        this.freeFly.del(b.flyID);
         this.addChild(b);
     };
     FlySceneContainer.prototype.removeFlyer = function (b) {
         if (b.typeCamp != 1) {
             this.enemyFly.del(b.flyID);
+            this.freeFly.add(b.flyID, b);
         }
-        this.freeFly.add(b.flyID, b);
         this.removeChild(b);
     };
     FlySceneContainer.prototype.appendBoom = function (b) {
@@ -115,14 +115,18 @@ var FlySceneContainer = (function (_super) {
         }
     };
     FlySceneContainer.prototype.onFlyTouchBegin = function (evt) {
-        var pos = this.localToGlobal(this.myFly.x, this.myFly.y);
-        this.myFlyDragOffsetX = evt.stageX - pos.x;
-        this.myFlyDragOffsetY = evt.stageY - pos.y;
-        this.rootContainer.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onFlyTouchMove, this);
+        if (!this.myFly.dead) {
+            var pos = this.localToGlobal(this.myFly.x, this.myFly.y);
+            this.myFlyDragOffsetX = evt.stageX - pos.x;
+            this.myFlyDragOffsetY = evt.stageY - pos.y;
+            this.rootContainer.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onFlyTouchMove, this);
+        }
     };
     FlySceneContainer.prototype.onFlyTouchMove = function (evt) {
-        var pos = this.globalToLocal(evt.stageX - this.myFlyDragOffsetX, evt.stageY - this.myFlyDragOffsetY);
-        this.myFly.moveTo(pos.x, pos.y);
+        if (!this.myFly.dead) {
+            var pos = this.globalToLocal(evt.stageX - this.myFlyDragOffsetX, evt.stageY - this.myFlyDragOffsetY);
+            this.myFly.moveTo(pos.x, pos.y);
+        }
     };
     FlySceneContainer.prototype.onFlyTouchEnd = function (evt) {
         this.rootContainer.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onFlyTouchMove, this);
@@ -208,6 +212,7 @@ var Flyer = (function (_super) {
             this.x = x - this.myWidth / 2;
             this.y = y - this.myHeight;
             if (camp != 1) {
+                this.touchEnabled = false;
                 this.touchChildren = false;
                 this.tw = egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
                 this.shotBoom = new egret.Timer(1000, 0);
@@ -215,6 +220,8 @@ var Flyer = (function (_super) {
                 this.shotBoom.start();
             }
             else {
+                this.touchEnabled = true;
+                this.touchChildren = false;
                 this.shotBoom = new egret.Timer(200, 0);
                 this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
                 this.shotBoom.start();
@@ -246,6 +253,7 @@ var Flyer = (function (_super) {
             this.myWidth = bmg.width;
             this.myHeight = bmg.height;
             if (camp != 1) {
+                this.touchEnabled = false;
                 this.touchChildren = false;
                 this.tw = egret.Tween.get(this).to({ y: this.y + 1200 }, 6000).call(this.tweenEnd, this);
                 this.shotBoom = new egret.Timer(1000, 0);
@@ -253,6 +261,8 @@ var Flyer = (function (_super) {
                 this.shotBoom.start();
             }
             else {
+                this.touchEnabled = true;
+                this.touchChildren = false;
                 this.shotBoom = new egret.Timer(200, 0);
                 this.shotBoom.addEventListener(egret.TimerEvent.TIMER, this.onShotBoom, this);
                 this.shotBoom.start();

@@ -4,10 +4,25 @@ class GameUtil {
     public static hitTest(obj1: egret.DisplayObject, obj2: egret.DisplayObject): boolean {
         var rect1: egret.Rectangle = obj1.getBounds();
         var rect2: egret.Rectangle = obj2.getBounds();
-        rect1.x = obj1.x;
-        rect1.y = obj1.y;
-        rect2.x = obj2.x;
-        rect2.y = obj2.y;
+        
+        if (obj1.parent) {
+            let p1 = obj1.parent.localToGlobal(obj1.x, obj1.y)
+            rect1.x = p1.x;
+            rect1.y = p1.y;
+        } else {
+            rect1.x = obj1.x;
+            rect1.y = obj1.y;
+        }
+
+        if (obj2.parent) {
+            let p2 = obj2.parent.localToGlobal(obj2.x, obj2.y)
+            rect2.x = p2.x;
+            rect2.y = p2.y;
+        } else {
+            rect2.x = obj2.x;
+            rect2.y = obj2.y;
+        }
+
         return rect1.intersects(rect2);
     }
 }

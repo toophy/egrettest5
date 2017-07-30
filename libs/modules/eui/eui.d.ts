@@ -184,8 +184,12 @@ declare namespace eui {
     function registerProperty(classDefinition: any, property: string, type: string, asDefault?: boolean): void;
 }
 declare namespace eui {
-    function getAssets(source: string, callback: (content: any) => void): void;
-    function getTheme(source: string, callback: (content: any) => void): void;
+    type AssetsAdapter = (source: string) => Promise<any>;
+    type ThemeAdapter = (url: string) => Promise<string>;
+    var assetsAdapter: AssetsAdapter;
+    var themeAdapter: ThemeAdapter;
+    function getAssets(source: string): Promise<any>;
+    function getTheme(source: string): Promise<string>;
     /**
      * The UIComponent class is the base class for all visual components, both skinnable and nonskinnable.
      *
@@ -8329,11 +8333,6 @@ declare namespace eui {
          * @param event
          */
         private onTouchCancel(event);
-        /**
-         * @private
-         * @param event
-         */
-        private dispatchBubbleEvent(event);
         /**
          * @private
          * @param event
