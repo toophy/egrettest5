@@ -27,14 +27,33 @@ class GameMapContainer extends egret.Sprite {
 
     public createScene() {
         // 背景
-        let bg: egret.Bitmap = new egret.Bitmap(RES.getRes("bgFly_jpg"));
-        bg.width = this.rootContainer.stage.stageWidth;
-        bg.height = this.rootContainer.stage.stageHeight;
+        let bg: egret.Bitmap = new egret.Bitmap(RES.getRes("nbg_4_png"));
+        //bg.width = this.rootContainer.stage.stageWidth;
+        //bg.height = this.rootContainer.stage.stageHeight;
+        bg.y = this.rootContainer.stage.stageHeight - bg.height;
         this.addChild(bg);
+
+        // 背景
+        let bg3: egret.Bitmap = new egret.Bitmap(RES.getRes("nbg_2_png"));
+        //bg3.width = this.rootContainer.stage.stageWidth;
+        // bg3.height = this.rootContainer.stage.stageHeight;
+        bg3.y = this.rootContainer.stage.stageHeight - bg3.height - 50;
+        this.addChild(bg3);
+
 
         // 我的飞机
         this.myFly = new Role(this, "f1_png", this.rootContainer.stage.stageWidth / 2, this.rootContainer.stage.stageHeight, 1);
         this.addChild(this.myFly);
+
+
+        // 背景
+        let bg4: egret.Bitmap = new egret.Bitmap(RES.getRes("nbg_3_png"));
+        //bg4.width = this.rootContainer.stage.stageWidth;
+        //bg4.height = this.rootContainer.stage.stageHeight;
+        bg4.y = this.rootContainer.stage.stageHeight - bg4.height;
+        this.addChild(bg4);
+
+
 
         this.touchEnabled = true;
         this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onFlyTouchBegin, this);
@@ -51,13 +70,13 @@ class GameMapContainer extends egret.Sprite {
         this.myBoom = new MapNum<SkillBoom>();
 
         // 动态障碍
-        this.zhangAi = new Zhangai(this);
+        // this.zhangAi = new Zhangai(this);
 
-        this.zhangAi.append("a", 0, 200, 700, 100);
-        this.zhangAi.append("b", 0, 500, 700, 100);
-        this.zhangAi.append("c1", 0, 800, 100, 100);
-        this.zhangAi.append("c2", 200, 800, 200, 100);
-        this.addChild(this.zhangAi);
+        // this.zhangAi.append("a", 0, 200, 700, 100);
+        // this.zhangAi.append("b", 0, 500, 700, 100);
+        // this.zhangAi.append("c1", 0, 800, 100, 100);
+        // this.zhangAi.append("c2", 200, 800, 200, 100);
+        // this.addChild(this.zhangAi);
 
         // let testMap: MapNum<string> = new MapNum<string>();
         // testMap.add(1, "111");
@@ -72,10 +91,13 @@ class GameMapContainer extends egret.Sprite {
     private onUpdateFrame(evt: egret.Event) {
         // 判断碰撞
         // 我的飞机碰撞墙壁
-        if (this.zhangAi.hitTest(this.myFly)) {
-            // 停止飞机移动
-            this.myFly.stopMove(this.myFly.x, this.myFly.y);
+        if (this.zhangAi) {
+            if (this.zhangAi.hitTest(this.myFly)) {
+                // 停止飞机移动
+                this.myFly.stopMove(this.myFly.x, this.myFly.y);
+            }
         }
+
 
         // 我的飞机子弹
         let myBooms = Object.keys(this.myBoom.items);
@@ -170,7 +192,7 @@ class GameMapContainer extends egret.Sprite {
         //this.rootContainer.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onFlyTouchMove, this);
         if (!this.myFly.dead) {
             let pos = this.globalToLocal(evt.stageX, evt.stageY);
-            if (!this.zhangAi.hitTest(this.myFly)) {
+            if ( this.zhangAi && !this.zhangAi.hitTest(this.myFly)) {
                 this.myFly.moveTo(pos.x, pos.y);
             }
         }

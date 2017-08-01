@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "bg_jpg,egret_icon_png,description_json,ctm_jpg,天鹅湖-柴可夫斯基 - 新雅室内乐_mp3,b1_png,b2_png,bgGrey_png,bloodBar_png,bloodBarBg_png,boss_png,btn_start_png,buff_blood_png,enemyBullet_png,f1_png,f2_png,game-over_png,hp_png,restart_png,resultBg_png,test_fnt,test_png,title_png,bgFly_jpg",
+			"keys": "bg_jpg,egret_icon_png,description_json,ctm_jpg,天鹅湖-柴可夫斯基 - 新雅室内乐_mp3,b1_png,b2_png,bgGrey_png,bloodBar_png,bloodBarBg_png,boss_png,btn_start_png,buff_blood_png,enemyBullet_png,f1_png,f2_png,game-over_png,hp_png,restart_png,resultBg_png,test_fnt,test_png,title_png,bgFly_jpg,nbg_2_png,nbg_3_png,nbg_4_png",
 			"name": "preload"
 		}
 	],
@@ -33,99 +33,114 @@
 			"name": "天鹅湖-柴可夫斯基 - 新雅室内乐_mp3"
 		},
 		{
-			"name": "b1_png",
+			"url": "assets/b1.png",
 			"type": "image",
-			"url": "assets/b1.png"
+			"name": "b1_png"
 		},
 		{
-			"name": "b2_png",
+			"url": "assets/b2.png",
 			"type": "image",
-			"url": "assets/b2.png"
+			"name": "b2_png"
 		},
 		{
-			"name": "bgGrey_png",
+			"url": "assets/bgGrey.png",
 			"type": "image",
-			"url": "assets/bgGrey.png"
+			"name": "bgGrey_png"
 		},
 		{
-			"name": "bloodBar_png",
+			"url": "assets/bloodBar.png",
 			"type": "image",
-			"url": "assets/bloodBar.png"
+			"name": "bloodBar_png"
 		},
 		{
-			"name": "bloodBarBg_png",
+			"url": "assets/bloodBarBg.png",
 			"type": "image",
-			"url": "assets/bloodBarBg.png"
+			"name": "bloodBarBg_png"
 		},
 		{
-			"name": "boss_png",
+			"url": "assets/boss.png",
 			"type": "image",
-			"url": "assets/boss.png"
+			"name": "boss_png"
 		},
 		{
-			"name": "btn_start_png",
+			"url": "assets/btn_start.png",
 			"type": "image",
-			"url": "assets/btn_start.png"
+			"name": "btn_start_png"
 		},
 		{
-			"name": "buff_blood_png",
+			"url": "assets/buff_blood.png",
 			"type": "image",
-			"url": "assets/buff_blood.png"
+			"name": "buff_blood_png"
 		},
 		{
-			"name": "enemyBullet_png",
+			"url": "assets/enemyBullet.png",
 			"type": "image",
-			"url": "assets/enemyBullet.png"
+			"name": "enemyBullet_png"
 		},
 		{
-			"name": "f1_png",
+			"url": "assets/f1.png",
 			"type": "image",
-			"url": "assets/f1.png"
+			"name": "f1_png"
 		},
 		{
-			"name": "f2_png",
+			"url": "assets/f2.png",
 			"type": "image",
-			"url": "assets/f2.png"
+			"name": "f2_png"
 		},
 		{
-			"name": "game-over_png",
+			"url": "assets/game-over.png",
 			"type": "image",
-			"url": "assets/game-over.png"
+			"name": "game-over_png"
 		},
 		{
-			"name": "hp_png",
+			"url": "assets/hp.png",
 			"type": "image",
-			"url": "assets/hp.png"
+			"name": "hp_png"
 		},
 		{
-			"name": "restart_png",
+			"url": "assets/restart.png",
 			"type": "image",
-			"url": "assets/restart.png"
+			"name": "restart_png"
 		},
 		{
-			"name": "resultBg_png",
+			"url": "assets/resultBg.png",
 			"type": "image",
-			"url": "assets/resultBg.png"
+			"name": "resultBg_png"
 		},
 		{
-			"name": "test_fnt",
+			"url": "assets/test.fnt",
 			"type": "font",
-			"url": "assets/test.fnt"
+			"name": "test_fnt"
 		},
 		{
-			"name": "test_png",
+			"url": "assets/test.png",
 			"type": "image",
-			"url": "assets/test.png"
+			"name": "test_png"
 		},
 		{
-			"name": "title_png",
+			"url": "assets/title.png",
 			"type": "image",
-			"url": "assets/title.png"
+			"name": "title_png"
 		},
 		{
-			"name": "bgFly_jpg",
+			"url": "assets/bgFly.jpg",
 			"type": "image",
-			"url": "assets/bgFly.jpg"
+			"name": "bgFly_jpg"
+		},
+		{
+			"url": "assets/nbg_2.png",
+			"type": "image",
+			"name": "nbg_2_png"
+		},
+		{
+			"url": "assets/nbg_3.png",
+			"type": "image",
+			"name": "nbg_3_png"
+		},
+		{
+			"url": "assets/nbg_4.png",
+			"type": "image",
+			"name": "nbg_4_png"
 		}
 	]
 }
