@@ -11,8 +11,16 @@ var GameMapContainer = (function (_super) {
     __extends(GameMapContainer, _super);
     function GameMapContainer(root) {
         var _this = _super.call(this) || this;
+        _this.factory = new dragonBones.EgretFactory();
+        _this._left = false;
+        _this._right = false;
+        _this._player = null;
+        _this._bullets = [];
+        _this._grounds = [];
         _this.rootContainer = root;
+        GameMapContainer.instance = _this;
         return _this;
+        //      this._resourceConfigURL = "resource/CoreElement.json";
     }
     GameMapContainer.prototype.createScene = function () {
         // 背景
@@ -21,12 +29,24 @@ var GameMapContainer = (function (_super) {
         //bg.height = this.rootContainer.stage.stageHeight;
         bg.y = this.rootContainer.stage.stageHeight - bg.height;
         this.addChild(bg);
+        this._grounds.push(bg);
         // 背景
         var bg3 = new egret.Bitmap(RES.getRes("nbg_2_png"));
         //bg3.width = this.rootContainer.stage.stageWidth;
         // bg3.height = this.rootContainer.stage.stageHeight;
         bg3.y = this.rootContainer.stage.stageHeight - bg3.height - 50;
         this.addChild(bg3);
+        this._grounds.push(bg3);
+        GameMapContainer.GROUND = this.rootContainer.stage.stageHeight - 50;
+        this.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
+        this.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
+        // mouse move        
+        var onTouchMove = egret.sys.TouchHandler.prototype.onTouchMove;
+        egret.sys.TouchHandler.prototype.onTouchMove = function (x, y, touchPointID) {
+            onTouchMove.call(this, x, y, touchPointID);
+            GameMapContainer.instance._player.aim(x, y);
+        };
+        this._player = new Mecha();
         // 我的飞机
         this.myFly = new Role(this, "f1_png", this.rootContainer.stage.stageWidth / 2, this.rootContainer.stage.stageHeight, 1);
         this.addChild(this.myFly);
@@ -36,10 +56,13 @@ var GameMapContainer = (function (_super) {
         //bg4.height = this.rootContainer.stage.stageHeight;
         bg4.y = this.rootContainer.stage.stageHeight - bg4.height;
         this.addChild(bg4);
+        this._grounds.push(bg4);
         this.touchEnabled = true;
         this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onFlyTouchBegin, this);
         this.addEventListener(egret.TouchEvent.TOUCH_END, this.onFlyTouchEnd, this);
         this.addEventListener(egret.Event.ENTER_FRAME, this.onUpdateFrame, this);
+        document.addEventListener("keydown", this._keyHandler);
+        document.addEventListener("keyup", this._keyHandler);
         // 敌人
         this.freeFly = new MapNum();
         this.enemyFly = new MapNum();
@@ -63,7 +86,96 @@ var GameMapContainer = (function (_super) {
         //     console.log(testMap.items[key])
         // })
     };
+    GameMapContainer.prototype.addBullet = function (bullet) {
+        this._bullets.push(bullet);
+    };
+    GameMapContainer.prototype._touchHandler = function (event) {
+        this._player.aim(event.stageX, event.stageY);
+        if (event.type == egret.TouchEvent.TOUCH_BEGIN) {
+            this._player.attack(true);
+        }
+        else {
+            this._player.attack(false);
+        }
+    };
+    GameMapContainer.prototype._moveGrounds = function (s) {
+        for (var _i = 0, _a = this._grounds; _i < _a.length; _i++) {
+            var i = _a[_i];
+            if (s == 1) {
+                i.x += 2 * s;
+            }
+            else if (s == -1) {
+                i.x += 2 * s;
+            }
+        }
+    };
+    GameMapContainer.prototype._keyHandler = function (event) {
+        var isDown = event.type == "keydown";
+        switch (event.keyCode) {
+            case 37:
+            case 65:
+                GameMapContainer.instance._left = isDown;
+                GameMapContainer.instance._updateMove(-1);
+                GameMapContainer.instance._moveGrounds(1);
+                break;
+            case 39:
+            case 68:
+                GameMapContainer.instance._right = isDown;
+                GameMapContainer.instance._updateMove(1);
+                GameMapContainer.instance._moveGrounds(-1);
+                break;
+            case 38:
+            case 87:
+                if (isDown) {
+                    GameMapContainer.instance._player.jump();
+                }
+                break;
+            case 83:
+            case 40:
+                GameMapContainer.instance._player.squat(isDown);
+                break;
+            case 81:
+                if (isDown) {
+                    GameMapContainer.instance._player.switchWeaponR();
+                }
+                break;
+            case 69:
+                if (isDown) {
+                    GameMapContainer.instance._player.switchWeaponL();
+                }
+                break;
+            case 32:
+                if (isDown) {
+                    GameMapContainer.instance._player.switchWeaponR();
+                    GameMapContainer.instance._player.switchWeaponL();
+                }
+                break;
+        }
+    };
+    GameMapContainer.prototype._updateMove = function (dir) {
+        if (this._left && this._right) {
+            this._player.move(dir);
+        }
+        else if (this._left) {
+            this._player.move(-1);
+        }
+        else if (this._right) {
+            this._player.move(1);
+        }
+        else {
+            this._player.move(0);
+        }
+    };
     GameMapContainer.prototype.onUpdateFrame = function (evt) {
+        this._player.update();
+        var i = this._bullets.length;
+        while (i--) {
+            var bullet = this._bullets[i];
+            if (bullet.update()) {
+                this._bullets.splice(i, 1);
+            }
+        }
+        dragonBones.WorldClock.clock.advanceTime(-1);
         // 判断碰撞
         // 我的飞机碰撞墙壁
         if (this.zhangAi) {
@@ -75,13 +187,13 @@ var GameMapContainer = (function (_super) {
         // 我的飞机子弹
         var myBooms = Object.keys(this.myBoom.items);
         for (var _i = 0, myBooms_1 = myBooms; _i < myBooms_1.length; _i++) {
-            var i = myBooms_1[_i];
+            var i_1 = myBooms_1[_i];
             var enemyFlys = Object.keys(this.enemyFly.items);
             for (var _a = 0, enemyFlys_1 = enemyFlys; _a < enemyFlys_1.length; _a++) {
                 var j = enemyFlys_1[_a];
-                if (GameUtil.hitTest(this.myBoom.items[i], this.enemyFly.items[j])) {
+                if (GameUtil.hitTest(this.myBoom.items[i_1], this.enemyFly.items[j])) {
                     this.enemyFly.items[j].onShot();
-                    this.myBoom.items[i].killed();
+                    this.myBoom.items[i_1].killed();
                     break;
                 }
             }
@@ -89,10 +201,10 @@ var GameMapContainer = (function (_super) {
         // 敌方飞机子弹
         var enemyBooms = Object.keys(this.enemyBoom.items);
         for (var _b = 0, enemyBooms_1 = enemyBooms; _b < enemyBooms_1.length; _b++) {
-            var i = enemyBooms_1[_b];
-            if (GameUtil.hitTest(this.enemyBoom.items[i], this.myFly)) {
+            var i_2 = enemyBooms_1[_b];
+            if (GameUtil.hitTest(this.enemyBoom.items[i_2], this.myFly)) {
                 this.myFly.onShot();
-                this.enemyBoom.items[i].killed();
+                this.enemyBoom.items[i_2].killed();
             }
         }
         // 飞机不够多, 再生产
@@ -209,5 +321,9 @@ var GameMapContainer = (function (_super) {
     };
     return GameMapContainer;
 }(egret.Sprite));
+//
+GameMapContainer.GROUND = 100;
+GameMapContainer.G = 0.6;
+GameMapContainer.instance = null;
 __reflect(GameMapContainer.prototype, "GameMapContainer");
 //# sourceMappingURL=game_map.js.map

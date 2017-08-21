@@ -3,7 +3,7 @@
 class GameMapContainer extends egret.Sprite {
 
     // 根显示容器
-    private rootContainer: egret.DisplayObjectContainer;
+    public rootContainer: egret.DisplayObjectContainer;
     private myFlyDragOffsetX: number;
     private myFlyDragOffsetY: number;
 
@@ -19,10 +19,27 @@ class GameMapContainer extends egret.Sprite {
     private zhangAi: Zhangai;
 
 
+    //
+    public static GROUND: number = 100;
+    public static G: number = 0.6;
+    public static instance: GameMapContainer = null;
+
+    public factory: dragonBones.EgretFactory = new dragonBones.EgretFactory();
+
+    private _left: boolean = false;
+    private _right: boolean = false;
+    private _player: Mecha = null;
+    private _bullets: Array<Bullet> = [];
+
+    private _grounds: Array<egret.Bitmap> = [];
 
     public constructor(root: egret.DisplayObjectContainer) {
         super();
         this.rootContainer = root;
+
+        GameMapContainer.instance = this;
+
+        //      this._resourceConfigURL = "resource/CoreElement.json";
     }
 
     public createScene() {
@@ -32,6 +49,7 @@ class GameMapContainer extends egret.Sprite {
         //bg.height = this.rootContainer.stage.stageHeight;
         bg.y = this.rootContainer.stage.stageHeight - bg.height;
         this.addChild(bg);
+        this._grounds.push(bg);
 
         // 背景
         let bg3: egret.Bitmap = new egret.Bitmap(RES.getRes("nbg_2_png"));
@@ -39,12 +57,23 @@ class GameMapContainer extends egret.Sprite {
         // bg3.height = this.rootContainer.stage.stageHeight;
         bg3.y = this.rootContainer.stage.stageHeight - bg3.height - 50;
         this.addChild(bg3);
+        this._grounds.push(bg3);
 
+
+        GameMapContainer.GROUND = this.rootContainer.stage.stageHeight - 50;
+        this.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
+        this.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
+        // mouse move        
+        let onTouchMove = egret.sys.TouchHandler.prototype.onTouchMove;
+        egret.sys.TouchHandler.prototype.onTouchMove = function (x: number, y: number, touchPointID: number): void {
+            onTouchMove.call(this, x, y, touchPointID);
+            GameMapContainer.instance._player.aim(x, y);
+        }
+        this._player = new Mecha();
 
         // 我的飞机
         this.myFly = new Role(this, "f1_png", this.rootContainer.stage.stageWidth / 2, this.rootContainer.stage.stageHeight, 1);
         this.addChild(this.myFly);
-
 
         // 背景
         let bg4: egret.Bitmap = new egret.Bitmap(RES.getRes("nbg_3_png"));
@@ -52,6 +81,8 @@ class GameMapContainer extends egret.Sprite {
         //bg4.height = this.rootContainer.stage.stageHeight;
         bg4.y = this.rootContainer.stage.stageHeight - bg4.height;
         this.addChild(bg4);
+        this._grounds.push(bg4);
+
 
 
 
@@ -59,6 +90,9 @@ class GameMapContainer extends egret.Sprite {
         this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onFlyTouchBegin, this);
         this.addEventListener(egret.TouchEvent.TOUCH_END, this.onFlyTouchEnd, this);
         this.addEventListener(egret.Event.ENTER_FRAME, this.onUpdateFrame, this);
+
+        document.addEventListener("keydown", this._keyHandler);
+        document.addEventListener("keyup", this._keyHandler);
 
         // 敌人
         this.freeFly = new MapNum<Role>();
@@ -88,7 +122,106 @@ class GameMapContainer extends egret.Sprite {
         // })
     }
 
+    public addBullet(bullet: Bullet): void {
+        this._bullets.push(bullet);
+    }
+
+    private _touchHandler(event: egret.TouchEvent): void {
+        this._player.aim(event.stageX, event.stageY);
+
+        if (event.type == egret.TouchEvent.TOUCH_BEGIN) {
+            this._player.attack(true);
+        } else {
+            this._player.attack(false);
+        }
+    }
+
+    private _moveGrounds(s:number){
+       for (let i of this._grounds) {
+           if(s==1){
+               i.x += 2*s;
+           } else if(s==-1){
+               i.x += 2*s;
+           }
+       }
+    }
+
+    private _keyHandler(event: KeyboardEvent): void {
+        const isDown: boolean = event.type == "keydown";
+        switch (event.keyCode) {
+            case 37:
+            case 65:
+                GameMapContainer.instance._left = isDown;
+                GameMapContainer.instance._updateMove(-1);
+                GameMapContainer.instance._moveGrounds(1);
+                break;
+
+            case 39:
+            case 68:
+                GameMapContainer.instance._right = isDown;
+                GameMapContainer.instance._updateMove(1);
+                GameMapContainer.instance._moveGrounds(-1);
+                break;
+
+            case 38:
+            case 87:
+                if (isDown) {
+                    GameMapContainer.instance._player.jump();
+                }
+                break;
+
+            case 83:
+            case 40:
+                GameMapContainer.instance._player.squat(isDown);
+                break;
+
+            case 81:
+                if (isDown) {
+                    GameMapContainer.instance._player.switchWeaponR();
+                }
+                break;
+
+            case 69:
+                if (isDown) {
+                    GameMapContainer.instance._player.switchWeaponL();
+                }
+                break;
+
+            case 32:
+                if (isDown) {
+                    GameMapContainer.instance._player.switchWeaponR();
+                    GameMapContainer.instance._player.switchWeaponL();
+                }
+                break;
+        }
+    }
+
+    private _updateMove(dir: number): void {
+        if (this._left && this._right) {
+            this._player.move(dir);
+        } else if (this._left) {
+            this._player.move(-1);
+        } else if (this._right) {
+            this._player.move(1);
+        } else {
+            this._player.move(0);
+        }
+    }
+
     private onUpdateFrame(evt: egret.Event) {
+
+        this._player.update();
+
+        let i = this._bullets.length;
+        while (i--) {
+            const bullet = this._bullets[i];
+            if (bullet.update()) {
+                this._bullets.splice(i, 1);
+            }
+        }
+
+        dragonBones.WorldClock.clock.advanceTime(-1);
+
         // 判断碰撞
         // 我的飞机碰撞墙壁
         if (this.zhangAi) {
@@ -192,7 +325,7 @@ class GameMapContainer extends egret.Sprite {
         //this.rootContainer.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onFlyTouchMove, this);
         if (!this.myFly.dead) {
             let pos = this.globalToLocal(evt.stageX, evt.stageY);
-            if ( this.zhangAi && !this.zhangAi.hitTest(this.myFly)) {
+            if (this.zhangAi && !this.zhangAi.hitTest(this.myFly)) {
                 this.myFly.moveTo(pos.x, pos.y);
             }
         }
