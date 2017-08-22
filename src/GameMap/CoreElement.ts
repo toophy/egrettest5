@@ -32,11 +32,13 @@ class Mecha {
     private _attackState: dragonBones.AnimationState = null;
     private _target: egret.Point = new egret.Point();
 
+    private _parent: egret.Sprite = null;
+
     public constructor() {
         this._armature = GameMapContainer.instance.factory.buildArmature("mecha_1502b");
         this._armatureDisplay = <dragonBones.EgretArmatureDisplay>this._armature.display;
-        this._armatureDisplay.x = GameMapContainer.instance.rootContainer.stage.stageWidth * 0.5;
-        this._armatureDisplay.y = GameMapContainer.GROUND;
+        // this._armatureDisplay.x = GameMapContainer.instance.rootContainer.stage.stageWidth * 0.5;
+        // this._armatureDisplay.y = GameMapContainer.GROUND;
         this._armatureDisplay.scaleX = this._armatureDisplay.scaleY = 0.4;
         this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
@@ -53,8 +55,18 @@ class Mecha {
 
         this._updateAnimation();
 
-        GameMapContainer.instance.addChild(this._armatureDisplay);
+        // GameMapContainer.instance.addChild(this._armatureDisplay);
         dragonBones.WorldClock.clock.add(this._armature);
+    }
+
+    public setParent(p:egret.Sprite,x:number,y:number) {
+        if (this._parent==null) {
+            this._parent.removeChild(this._armatureDisplay);
+        }
+        this._parent = p
+        this._parent.addChild(this._armatureDisplay);
+        this._armatureDisplay.x = x;
+        this._armatureDisplay.y = y;
     }
 
     public move(dir: number): void {
@@ -174,7 +186,10 @@ class Mecha {
         const bullet = new Bullet("bullet_01", "fireEffect_01", radian + Math.random() * 0.02 - 0.01, 40, firePoint);
 
         GameMapContainer.instance.addBullet(bullet);
-    }
+        // if(this._parent!=null){
+        //     this._parent.addbu
+        // }
+    } 
 
     private _updateAnimation(): void {
         if (this._isJumpingA) {
