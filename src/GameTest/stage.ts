@@ -31,5 +31,26 @@ namespace tgame {
         public GetHeight(): number {
             return this._height;
         }
+
+        public AddSceneSet(s:SceneSet):boolean {
+            if (this._scenesName.get(s.GetName())==null) {
+                s.SetStage(this);
+                this._scenesName.add(s.GetName(),s);
+                this._scenesIndex.add(s.GetIndex(),s);
+                return true;
+            }
+            return false;
+        }
+
+        public DelSceneSet(name:string):boolean {
+            let os = this._scenesName.get(name);
+            if (os!=null) {
+                os.SetStage(null);
+                this._scenesIndex.del(os.GetIndex());
+                this._scenesName.del(name);
+                return true;                
+            }
+            return false;
+        }
     }
 }
