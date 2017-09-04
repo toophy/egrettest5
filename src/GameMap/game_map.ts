@@ -32,6 +32,7 @@ class GameMapContainer extends egret.Sprite {
     private _bullets: Array<Bullet> = [];
 
     private _grounds: Array<egret.Bitmap> = [];
+    private _lands: tgame.LandView;
 
     public constructor(root: egret.DisplayObjectContainer) {
         super();
@@ -50,6 +51,11 @@ class GameMapContainer extends egret.Sprite {
         bg.y = this.rootContainer.stage.stageHeight - bg.height;
         this.addChild(bg);
         this._grounds.push(bg);
+
+        let data = RES.getRes("land_json");
+        this._lands = new tgame.LandView();
+        this._lands.LoadLand(data);
+        this._lands.ShowLand(this);
 
         // 背景
         let bg3: egret.Bitmap = new egret.Bitmap(RES.getRes("nbg_2_png"));
@@ -144,6 +150,7 @@ class GameMapContainer extends egret.Sprite {
                i.x += 2*s;
            }
        }
+       this._lands.ScrollLand(2*s);
     }
 
     private _keyHandler(event: KeyboardEvent): void {

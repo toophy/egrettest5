@@ -37,7 +37,7 @@ class Main extends egret.DisplayObjectContainer {
     private testContainer: TestContainer;
     private flySceneContainer: FlySceneContainer;
     private gameMapContainer: GameMapContainer;
-   
+
 
     public constructor() {
         super();
@@ -129,10 +129,12 @@ class Main extends egret.DisplayObjectContainer {
         // this.flySceneContainer.createScene();
         // this.addChild(this.flySceneContainer);
 
+        let data = RES.getRes("land_json");
+        // let lands: tgame.CnfLand = <tgame.CnfLand>data;
+
         this.gameMapContainer = new GameMapContainer(this);
         this.gameMapContainer.createScene();
         this.addChild(this.gameMapContainer);
-
 
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
         // Get asynchronously a json configuration file according to name keyword. As for the property of name please refer to the configuration file of resources/resource.json.

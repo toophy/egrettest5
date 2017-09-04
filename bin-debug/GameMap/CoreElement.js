@@ -24,10 +24,11 @@ var Mecha = (function () {
         this._walkState = null;
         this._attackState = null;
         this._target = new egret.Point();
+        this._parent = null;
         this._armature = GameMapContainer.instance.factory.buildArmature("mecha_1502b");
         this._armatureDisplay = this._armature.display;
-        this._armatureDisplay.x = GameMapContainer.instance.rootContainer.stage.stageWidth * 0.5;
-        this._armatureDisplay.y = GameMapContainer.GROUND;
+        // this._armatureDisplay.x = GameMapContainer.instance.rootContainer.stage.stageWidth * 0.5;
+        // this._armatureDisplay.y = GameMapContainer.GROUND;
         this._armatureDisplay.scaleX = this._armatureDisplay.scaleY = 0.4;
         this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_IN_COMPLETE, this._animationEventHandler, this);
         this._armatureDisplay.addEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, this._animationEventHandler, this);
@@ -40,9 +41,18 @@ var Mecha = (function () {
         this._weaponR.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         this._weaponL.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
         this._updateAnimation();
-        GameMapContainer.instance.addChild(this._armatureDisplay);
+        // GameMapContainer.instance.addChild(this._armatureDisplay);
         dragonBones.WorldClock.clock.add(this._armature);
     }
+    Mecha.prototype.setParent = function (p, x, y) {
+        if (this._parent == null) {
+            this._parent.removeChild(this._armatureDisplay);
+        }
+        this._parent = p;
+        this._parent.addChild(this._armatureDisplay);
+        this._armatureDisplay.x = x;
+        this._armatureDisplay.y = y;
+    };
     Mecha.prototype.move = function (dir) {
         if (this._moveDir == dir) {
             return;
@@ -137,6 +147,9 @@ var Mecha = (function () {
         var radian = this._faceDir < 0 ? Math.PI - this._aimRadian : this._aimRadian;
         var bullet = new Bullet("bullet_01", "fireEffect_01", radian + Math.random() * 0.02 - 0.01, 40, firePoint);
         GameMapContainer.instance.addBullet(bullet);
+        // if(this._parent!=null){
+        //     this._parent.addbu
+        // }
     };
     Mecha.prototype._updateAnimation = function () {
         if (this._isJumpingA) {

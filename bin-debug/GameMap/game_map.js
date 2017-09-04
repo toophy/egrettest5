@@ -30,6 +30,10 @@ var GameMapContainer = (function (_super) {
         bg.y = this.rootContainer.stage.stageHeight - bg.height;
         this.addChild(bg);
         this._grounds.push(bg);
+        var data = RES.getRes("land_json");
+        this._lands = new tgame.LandView();
+        this._lands.LoadLand(data);
+        this._lands.ShowLand(this);
         // 背景
         var bg3 = new egret.Bitmap(RES.getRes("nbg_2_png"));
         //bg3.width = this.rootContainer.stage.stageWidth;
@@ -108,6 +112,7 @@ var GameMapContainer = (function (_super) {
                 i.x += 2 * s;
             }
         }
+        this._lands.ScrollLand(2 * s);
     };
     GameMapContainer.prototype._keyHandler = function (event) {
         var isDown = event.type == "keydown";

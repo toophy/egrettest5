@@ -86,8 +86,8 @@ class Dictionary {
 
 class MapStr<T> {
     public items: { [key: string]: T };
-    private curCount: number;
-    private maxCount: number;
+    public curCount: number;
+    public maxCount: number;
 
     constructor() {
         this.items = {};

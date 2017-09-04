@@ -1,0 +1,102 @@
+{
+    "citys": {
+        "city1": {
+            "id": 1,
+            "sort": 1,
+            "master": "player1",
+            "up": {
+                "type": "shape",
+                "data": {
+                    "shape": "rect",
+                    "color": 100,
+                    "width": 300,
+                    "height": 200
+                }
+            },
+            "middle": {
+                "type": "shape",
+                "data": {
+                    "shape": "rect",
+                    "color": 200,
+                    "width": 300,
+                    "height": 200
+                }
+            },
+            "down": {
+                "type": "shape",
+                "data": {
+                    "shape": "rect",
+                    "color": 300,
+                    "width": 300,
+                    "height": 200
+                }
+            }
+        },
+        "city2": {
+            "id": 2,
+            "sort": 2,
+            "master": "player2",
+            "type": "shape",
+            "up": {
+                "type": "shape",
+                "data": {
+                    "shape": "rect",
+                    "color": 400,
+                    "width": 300,
+                    "height": 200
+                }
+            },
+            "middle": {
+                "type": "shape",
+                "data": {
+                    "shape": "rect",
+                    "color": 500,
+                    "width": 300,
+                    "height": 200
+                }
+            },
+            "down": {
+                "type": "shape",
+                "data": {
+                    "shape": "rect",
+                    "color": 600,
+                    "width": 300,
+                    "height": 200
+                }
+            }
+        },
+        "city3": {
+            "id": 3,
+            "sort": 3,
+            "master": "player3",
+            "type": "shape",
+            "up": {
+                "type": "shape",
+                "data": {
+                    "shape": "rect",
+                    "color": 700,
+                    "width": 300,
+                    "height": 200
+                }
+            },
+            "middle": {
+                "type": "shape",
+                "data": {
+                    "shape": "rect",
+                    "color": 800,
+                    "width": 300,
+                    "height": 200
+                }
+            },
+            "down": {
+                "type": "shape",
+                "data": {
+                    "shape": "rect",
+                    "color": 900,
+                    "width": 300,
+                    "height": 200
+                }
+            }
+        }
+    }
+}

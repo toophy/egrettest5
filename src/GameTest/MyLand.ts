@@ -56,5 +56,83 @@ namespace tgame {
         public constructor() {
         }
     }
+
+    export class CnfRowBlock {
+        public shape: string;
+        public color: number;
+        public width: number;
+        public height: number;
+    }
+
+    export class CnfCityRow {
+        public type: string;
+        public data: CnfRowBlock;
+    }
+
+    export class CnfCity {
+        public id: number;
+        public sort: number;
+        public master: string;
+        public up: CnfCityRow;
+        public middle: CnfCityRow;
+        public down: CnfCityRow;
+    }
+
+    export class CnfLand {
+        public citys: { [key: string]: CnfCity };
+    }
+
+    export class LandView {
+        private cnfs: CnfLand;
+        private citySprite: Array<egret.Sprite>;
+
+        public constructor() {
+            this.citySprite = new Array<egret.Sprite>();
+        }
+
+        public LoadLand(jsonData: any) {
+            this.cnfs = <CnfLand>jsonData;
+            for (let p in this.cnfs.citys) {
+                let cts: egret.Sprite = new egret.Sprite();
+                if (this.cnfs.citys[p].up.type == "shape") {
+                    let bg: egret.Shape = new egret.Shape();
+                    bg.graphics.beginFill(this.cnfs.citys[p].up.data.color, 100);
+                    bg.graphics.drawRect(0, 0, this.cnfs.citys[p].up.data.width, this.cnfs.citys[p].up.data.height);
+                    bg.graphics.endFill();
+                    cts.addChild(bg);
+                }
+                if (this.cnfs.citys[p].middle.type == "shape") {
+                    let bg: egret.Shape = new egret.Shape();
+                    bg.graphics.beginFill(this.cnfs.citys[p].middle.data.color, 100);
+                    bg.graphics.drawRect(0, 200, this.cnfs.citys[p].middle.data.width, this.cnfs.citys[p].middle.data.height);
+                    bg.graphics.endFill();
+                    cts.addChild(bg);
+                }
+                if (this.cnfs.citys[p].down.type == "shape") {
+                    let bg: egret.Shape = new egret.Shape();
+                    bg.graphics.beginFill(this.cnfs.citys[p].down.data.color, 100);
+                    bg.graphics.drawRect(0, 400, this.cnfs.citys[p].down.data.width, this.cnfs.citys[p].down.data.height);
+                    bg.graphics.endFill();
+                    cts.addChild(bg);
+                }
+                this.citySprite.push(cts);
+            }
+        }
+
+        public ShowLand(s: egret.Sprite) {
+            for (let i = 0; i < this.citySprite.length; ++i) {
+                this.citySprite[i].x = i * 600;
+                this.citySprite[i].y = 0;
+                s.addChild(this.citySprite[i]);
+            }
+        }
+
+        public ScrollLand(x: number) {
+            for (let i = 0; i < this.citySprite.length; ++i) {
+                this.citySprite[i].x += x;
+            }
+        }
+    }
+
 }
 

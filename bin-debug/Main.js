@@ -115,6 +115,8 @@ var Main = (function (_super) {
         // this.flySceneContainer = new FlySceneContainer(this);
         // this.flySceneContainer.createScene();
         // this.addChild(this.flySceneContainer);
+        var data = RES.getRes("land_json");
+        // let lands: tgame.CnfLand = <tgame.CnfLand>data;
         this.gameMapContainer = new GameMapContainer(this);
         this.gameMapContainer.createScene();
         this.addChild(this.gameMapContainer);

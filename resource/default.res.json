@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "bg_jpg,egret_icon_png,description_json,ctm_jpg,天鹅湖-柴可夫斯基 - 新雅室内乐_mp3,b1_png,b2_png,bgGrey_png,bloodBar_png,bloodBarBg_png,boss_png,btn_start_png,buff_blood_png,enemyBullet_png,f1_png,f2_png,game-over_png,hp_png,restart_png,resultBg_png,test_fnt,test_png,title_png,bgFly_jpg,nbg_2_png,nbg_3_png,nbg_4_png,textureDataA,textureA,dragonBonesData",
+			"keys": "bg_jpg,egret_icon_png,description_json,ctm_jpg,天鹅湖-柴可夫斯基 - 新雅室内乐_mp3,b1_png,b2_png,bgGrey_png,bloodBar_png,bloodBarBg_png,boss_png,btn_start_png,buff_blood_png,enemyBullet_png,f1_png,f2_png,game-over_png,hp_png,restart_png,resultBg_png,test_fnt,test_png,title_png,bgFly_jpg,nbg_2_png,nbg_3_png,nbg_4_png,textureDataA,textureA,dragonBonesData,land_json",
 			"name": "preload"
 		}
 	],
@@ -156,6 +156,11 @@
 			"url": "CoreElement/CoreElement_texture_1.json",
 			"type": "json",
 			"name": "textureDataA"
+		},
+		{
+			"url": "land/land.json",
+			"type": "json",
+			"name": "land_json"
 		}
 	]
 }
