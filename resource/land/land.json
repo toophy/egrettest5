@@ -5,30 +5,43 @@
             "sort": 1,
             "master": "player1",
             "up": {
-                "type": "shape",
+                "type": "image",
                 "data": {
                     "shape": "rect",
                     "color": 100,
-                    "width": 1136,
-                    "height": 320
+                    "res": "bg1_jpg",
+                    "width": 1000,
+                    "height": 240
+                }
+            },
+            "up2": {
+                "type": "image",
+                "data": {
+                    "shape": "rect",
+                    "color": 100,
+                    "res": "bg2_jpg",
+                    "width": 1000,
+                    "height": 66
                 }
             },
             "middle": {
-                "type": "shape",
+                "type": "image",
                 "data": {
                     "shape": "rect",
-                    "color": 200,
-                    "width": 1136,
-                    "height": 160
+                    "color": 100,
+                    "res": "bg3_jpg",
+                    "width": 1000,
+                    "height": 76
                 }
             },
             "down": {
-                "type": "shape",
+                "type": "image",
                 "data": {
                     "shape": "rect",
-                    "color": 300,
-                    "width": 1136,
-                    "height": 160
+                    "color": 100,
+                    "res": "bg4_jpg",
+                    "width": 1000,
+                    "height": 62
                 }
             }
         },
@@ -36,32 +49,44 @@
             "id": 2,
             "sort": 2,
             "master": "player2",
-            "type": "shape",
             "up": {
-                "type": "shape",
+                "type": "image",
                 "data": {
                     "shape": "rect",
-                    "color": 400,
-                    "width": 1136,
-                    "height": 320
+                    "color": 100,
+                    "res": "bg1_jpg",
+                    "width": 1000,
+                    "height": 240
+                }
+            },
+            "up2": {
+                "type": "image",
+                "data": {
+                    "shape": "rect",
+                    "color": 100,
+                    "res": "bg2_jpg",
+                    "width": 1000,
+                    "height": 66
                 }
             },
             "middle": {
-                "type": "shape",
+                "type": "image",
                 "data": {
                     "shape": "rect",
-                    "color": 500,
-                    "width": 1136,
-                    "height": 160
+                    "color": 100,
+                    "res": "bg3_jpg",
+                    "width": 1000,
+                    "height": 76
                 }
             },
             "down": {
-                "type": "shape",
+                "type": "image",
                 "data": {
                     "shape": "rect",
-                    "color": 600,
-                    "width": 1136,
-                    "height": 160
+                    "color": 100,
+                    "res": "bg4_jpg",
+                    "width": 1000,
+                    "height": 62
                 }
             }
         },
@@ -69,32 +94,44 @@
             "id": 3,
             "sort": 3,
             "master": "player3",
-            "type": "shape",
             "up": {
-                "type": "shape",
+                "type": "image",
                 "data": {
                     "shape": "rect",
-                    "color": 700,
-                    "width": 1136,
-                    "height": 320
+                    "color": 100,
+                    "res": "bg1_jpg",
+                    "width": 1000,
+                    "height": 240
+                }
+            },
+            "up2": {
+                "type": "image",
+                "data": {
+                    "shape": "rect",
+                    "color": 100,
+                    "res": "bg2_jpg",
+                    "width": 1000,
+                    "height": 66
                 }
             },
             "middle": {
-                "type": "shape",
+                "type": "image",
                 "data": {
                     "shape": "rect",
-                    "color": 800,
-                    "width": 1136,
-                    "height": 160
+                    "color": 100,
+                    "res": "bg3_jpg",
+                    "width": 1000,
+                    "height": 76
                 }
             },
             "down": {
-                "type": "shape",
+                "type": "image",
                 "data": {
                     "shape": "rect",
-                    "color": 900,
-                    "width": 1136,
-                    "height": 160
+                    "color": 100,
+                    "res": "bg4_jpg",
+                    "width": 1000,
+                    "height": 62
                 }
             }
         }

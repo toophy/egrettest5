@@ -60,6 +60,7 @@ namespace tgame {
     export class CnfRowBlock {
         public shape: string;
         public color: number;
+        public res: string;
         public width: number;
         public height: number;
     }
@@ -74,6 +75,7 @@ namespace tgame {
         public sort: number;
         public master: string;
         public up: CnfCityRow;
+        public up2: CnfCityRow;
         public middle: CnfCityRow;
         public down: CnfCityRow;
     }
@@ -100,6 +102,21 @@ namespace tgame {
                     bg.graphics.drawRect(0, 0, this.cnfs.citys[p].up.data.width, this.cnfs.citys[p].up.data.height);
                     bg.graphics.endFill();
                     cts.addChild(bg);
+                } else if (this.cnfs.citys[p].up.type == "image") {
+                    // 背景
+                    let bg4: egret.Bitmap = new egret.Bitmap(RES.getRes());
+                    //bg4.width = this.rootContainer.stage.stageWidth;
+                    //bg4.height = this.rootContainer.stage.stageHeight;
+                    bg4.y = this.rootContainer.stage.stageHeight - bg4.height;
+                    this.addChild(bg4);
+                }
+                if (this.cnfs.citys[p].up2.type == "shape") {
+                    let bg: egret.Shape = new egret.Shape();
+                    bg.graphics.beginFill(this.cnfs.citys[p].up2.data.color, 100);
+                    bg.graphics.drawRect(0, 0, this.cnfs.citys[p].up2.data.width, this.cnfs.citys[p].up2.data.height);
+                    bg.graphics.endFill();
+                    cts.addChild(bg);
+                } else if (this.cnfs.citys[p].up.type == "image") {
                 }
                 if (this.cnfs.citys[p].middle.type == "shape") {
                     let bg: egret.Shape = new egret.Shape();
@@ -107,6 +124,7 @@ namespace tgame {
                     bg.graphics.drawRect(0, 320, this.cnfs.citys[p].middle.data.width, this.cnfs.citys[p].middle.data.height);
                     bg.graphics.endFill();
                     cts.addChild(bg);
+                } else if (this.cnfs.citys[p].up.type == "image") {
                 }
                 if (this.cnfs.citys[p].down.type == "shape") {
                     let bg: egret.Shape = new egret.Shape();
@@ -114,6 +132,7 @@ namespace tgame {
                     bg.graphics.drawRect(0, 480, this.cnfs.citys[p].down.data.width, this.cnfs.citys[p].down.data.height);
                     bg.graphics.endFill();
                     cts.addChild(bg);
+                } else if (this.cnfs.citys[p].up.type == "image") {
                 }
                 this.citySprite.push(cts);
             }
