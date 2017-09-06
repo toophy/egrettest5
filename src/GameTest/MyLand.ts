@@ -104,14 +104,14 @@ namespace tgame {
                 if (this.cnfs.citys[p].middle.type == "shape") {
                     let bg: egret.Shape = new egret.Shape();
                     bg.graphics.beginFill(this.cnfs.citys[p].middle.data.color, 100);
-                    bg.graphics.drawRect(0, 200, this.cnfs.citys[p].middle.data.width, this.cnfs.citys[p].middle.data.height);
+                    bg.graphics.drawRect(0, 320, this.cnfs.citys[p].middle.data.width, this.cnfs.citys[p].middle.data.height);
                     bg.graphics.endFill();
                     cts.addChild(bg);
                 }
                 if (this.cnfs.citys[p].down.type == "shape") {
                     let bg: egret.Shape = new egret.Shape();
                     bg.graphics.beginFill(this.cnfs.citys[p].down.data.color, 100);
-                    bg.graphics.drawRect(0, 400, this.cnfs.citys[p].down.data.width, this.cnfs.citys[p].down.data.height);
+                    bg.graphics.drawRect(0, 480, this.cnfs.citys[p].down.data.width, this.cnfs.citys[p].down.data.height);
                     bg.graphics.endFill();
                     cts.addChild(bg);
                 }
@@ -121,7 +121,7 @@ namespace tgame {
 
         public ShowLand(s: egret.Sprite) {
             for (let i = 0; i < this.citySprite.length; ++i) {
-                this.citySprite[i].x = i * 600;
+                this.citySprite[i].x = i * 1136;
                 this.citySprite[i].y = 0;
                 s.addChild(this.citySprite[i]);
             }
