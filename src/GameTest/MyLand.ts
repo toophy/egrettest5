@@ -87,6 +87,10 @@ namespace tgame {
     export class LandView {
         private cnfs: CnfLand;
         private citySprite: Array<egret.Sprite>;
+        private up_height: number = 240;
+        private up2_height: number = 100;//66;
+        private middle_height: number = 200;//76;
+        private down_height: number = 100;//62;
 
         public constructor() {
             this.citySprite = new Array<egret.Sprite>();
@@ -96,44 +100,10 @@ namespace tgame {
             this.cnfs = <CnfLand>jsonData;
             for (let p in this.cnfs.citys) {
                 let cts: egret.Sprite = new egret.Sprite();
-                if (this.cnfs.citys[p].up.type == "shape") {
-                    let bg: egret.Shape = new egret.Shape();
-                    bg.graphics.beginFill(this.cnfs.citys[p].up.data.color, 100);
-                    bg.graphics.drawRect(0, 0, this.cnfs.citys[p].up.data.width, this.cnfs.citys[p].up.data.height);
-                    bg.graphics.endFill();
-                    cts.addChild(bg);
-                } else if (this.cnfs.citys[p].up.type == "image") {
-                    // 背景
-                    let bg4: egret.Bitmap = new egret.Bitmap(RES.getRes());
-                    //bg4.width = this.rootContainer.stage.stageWidth;
-                    //bg4.height = this.rootContainer.stage.stageHeight;
-                    bg4.y = this.rootContainer.stage.stageHeight - bg4.height;
-                    this.addChild(bg4);
-                }
-                if (this.cnfs.citys[p].up2.type == "shape") {
-                    let bg: egret.Shape = new egret.Shape();
-                    bg.graphics.beginFill(this.cnfs.citys[p].up2.data.color, 100);
-                    bg.graphics.drawRect(0, 0, this.cnfs.citys[p].up2.data.width, this.cnfs.citys[p].up2.data.height);
-                    bg.graphics.endFill();
-                    cts.addChild(bg);
-                } else if (this.cnfs.citys[p].up.type == "image") {
-                }
-                if (this.cnfs.citys[p].middle.type == "shape") {
-                    let bg: egret.Shape = new egret.Shape();
-                    bg.graphics.beginFill(this.cnfs.citys[p].middle.data.color, 100);
-                    bg.graphics.drawRect(0, 320, this.cnfs.citys[p].middle.data.width, this.cnfs.citys[p].middle.data.height);
-                    bg.graphics.endFill();
-                    cts.addChild(bg);
-                } else if (this.cnfs.citys[p].up.type == "image") {
-                }
-                if (this.cnfs.citys[p].down.type == "shape") {
-                    let bg: egret.Shape = new egret.Shape();
-                    bg.graphics.beginFill(this.cnfs.citys[p].down.data.color, 100);
-                    bg.graphics.drawRect(0, 480, this.cnfs.citys[p].down.data.width, this.cnfs.citys[p].down.data.height);
-                    bg.graphics.endFill();
-                    cts.addChild(bg);
-                } else if (this.cnfs.citys[p].up.type == "image") {
-                }
+                this.LoadCityRow(cts, this.cnfs.citys[p].up, 0, 0, 1136, this.up_height);
+                this.LoadCityRow(cts, this.cnfs.citys[p].up2, 0, this.up_height, 1136, this.up2_height);
+                this.LoadCityRow(cts, this.cnfs.citys[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
+                this.LoadCityRow(cts, this.cnfs.citys[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
                 this.citySprite.push(cts);
             }
         }
@@ -151,7 +121,46 @@ namespace tgame {
                 this.citySprite[i].x += x;
             }
         }
+        
+        private LoadCityRow(cts: egret.Sprite, ctr: CnfCityRow, x: number, y: number, w: number, h: number) {
+            if (ctr.type == "shape") {
+                let bg: egret.Shape = new egret.Shape();
+                bg.graphics.beginFill(ctr.data.color, 100);
+                bg.graphics.drawRect(0, 0, ctr.data.width, ctr.data.height);
+                bg.graphics.endFill();
+                bg.width = w;
+                bg.height = h;
+                bg.x = x;
+                bg.y = y;
+                cts.addChild(bg);
+            } else if (ctr.type == "image") {
+                let bg4: egret.Bitmap = new egret.Bitmap(RES.getRes(ctr.data.res));
+                bg4.width = w;
+                bg4.height = h;
+                bg4.x = x;
+                bg4.y = y;
+                cts.addChild(bg4);
+            }
+        }
+
     }
+
+    // land 再次划分
+    // 分为 页, 行, 列
+    // 第一页 : 背景
+    //         上 中上 中 下 四行
+    // 第二页 : 建筑
+    //         上 中上 中 下 四行, 一般是由中上行存在建筑
+    // 第三页 : 角色
+    //         上 中上 中 下 四行, 一般是由中行存在角色
+    // 第四页 : 装饰
+    //         上 中上 中 下 四行, 一般是下行存在装饰
+    //
+    // Load 一个城市的配置, 分为不同页
+    //
+    // 依据上面的结论, 提前划分为不同的sprite, 按照显示顺序排排队
+    // 第一页 上, 第二页 上,...
+    // 第一页 中上, 第二页中上 ...
 
 }
 

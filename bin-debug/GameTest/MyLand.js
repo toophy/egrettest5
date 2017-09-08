@@ -74,33 +74,20 @@ var tgame;
     __reflect(CnfLand.prototype, "tgame.CnfLand");
     var LandView = (function () {
         function LandView() {
+            this.up_height = 240;
+            this.up2_height = 100; //66;
+            this.middle_height = 200; //76;
+            this.down_height = 100; //62;
             this.citySprite = new Array();
         }
         LandView.prototype.LoadLand = function (jsonData) {
             this.cnfs = jsonData;
             for (var p in this.cnfs.citys) {
                 var cts = new egret.Sprite();
-                if (this.cnfs.citys[p].up.type == "shape") {
-                    var bg = new egret.Shape();
-                    bg.graphics.beginFill(this.cnfs.citys[p].up.data.color, 100);
-                    bg.graphics.drawRect(0, 0, this.cnfs.citys[p].up.data.width, this.cnfs.citys[p].up.data.height);
-                    bg.graphics.endFill();
-                    cts.addChild(bg);
-                }
-                if (this.cnfs.citys[p].middle.type == "shape") {
-                    var bg = new egret.Shape();
-                    bg.graphics.beginFill(this.cnfs.citys[p].middle.data.color, 100);
-                    bg.graphics.drawRect(0, 320, this.cnfs.citys[p].middle.data.width, this.cnfs.citys[p].middle.data.height);
-                    bg.graphics.endFill();
-                    cts.addChild(bg);
-                }
-                if (this.cnfs.citys[p].down.type == "shape") {
-                    var bg = new egret.Shape();
-                    bg.graphics.beginFill(this.cnfs.citys[p].down.data.color, 100);
-                    bg.graphics.drawRect(0, 480, this.cnfs.citys[p].down.data.width, this.cnfs.citys[p].down.data.height);
-                    bg.graphics.endFill();
-                    cts.addChild(bg);
-                }
+                this.LoadCityRow(cts, this.cnfs.citys[p].up, 0, 0, 1136, this.up_height);
+                this.LoadCityRow(cts, this.cnfs.citys[p].up2, 0, this.up_height, 1136, this.up2_height);
+                this.LoadCityRow(cts, this.cnfs.citys[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
+                this.LoadCityRow(cts, this.cnfs.citys[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
                 this.citySprite.push(cts);
             }
         };
@@ -114,6 +101,27 @@ var tgame;
         LandView.prototype.ScrollLand = function (x) {
             for (var i = 0; i < this.citySprite.length; ++i) {
                 this.citySprite[i].x += x;
+            }
+        };
+        LandView.prototype.LoadCityRow = function (cts, ctr, x, y, w, h) {
+            if (ctr.type == "shape") {
+                var bg = new egret.Shape();
+                bg.graphics.beginFill(ctr.data.color, 100);
+                bg.graphics.drawRect(0, 0, ctr.data.width, ctr.data.height);
+                bg.graphics.endFill();
+                bg.width = w;
+                bg.height = h;
+                bg.x = x;
+                bg.y = y;
+                cts.addChild(bg);
+            }
+            else if (ctr.type == "image") {
+                var bg4 = new egret.Bitmap(RES.getRes(ctr.data.res));
+                bg4.width = w;
+                bg4.height = h;
+                bg4.x = x;
+                bg4.y = y;
+                cts.addChild(bg4);
             }
         };
         return LandView;
