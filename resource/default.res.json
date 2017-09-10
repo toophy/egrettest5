@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "bg_jpg,egret_icon_png,description_json,ctm_jpg,天鹅湖-柴可夫斯基 - 新雅室内乐_mp3,b1_png,b2_png,bgGrey_png,bloodBar_png,bloodBarBg_png,boss_png,btn_start_png,buff_blood_png,enemyBullet_png,f1_png,f2_png,game-over_png,hp_png,restart_png,resultBg_png,test_fnt,test_png,title_png,bgFly_jpg,nbg_2_png,nbg_3_png,nbg_4_png,textureDataA,textureA,dragonBonesData,land_json,bg1_jpg,bg2_jpg,bg3_jpg,bg4_jpg,tree1_png,land_build_json,lands_json,citys_json,city_lays_json,account_json,roles_json",
+			"keys": "bg_jpg,egret_icon_png,description_json,ctm_jpg,天鹅湖-柴可夫斯基 - 新雅室内乐_mp3,b1_png,b2_png,bgGrey_png,bloodBar_png,bloodBarBg_png,boss_png,btn_start_png,buff_blood_png,enemyBullet_png,f1_png,f2_png,game-over_png,hp_png,restart_png,resultBg_png,test_fnt,test_png,title_png,bgFly_jpg,nbg_2_png,nbg_3_png,nbg_4_png,textureDataA,textureA,dragonBonesData,land_json,bg1_jpg,bg2_jpg,bg3_jpg,bg4_jpg,tree1_png,land_build_json,lands_json,citys_json,city_lays_json,account_json,roles_json,tree2_png",
 			"name": "preload"
 		}
 	],
@@ -193,34 +193,39 @@
 			"name": "tree1_png"
 		},
 		{
-			"name": "land_build_json",
+			"url": "land/land_build.json",
 			"type": "json",
-			"url": "land/land_build.json"
+			"name": "land_build_json"
 		},
 		{
-			"name": "lands_json",
+			"url": "land/lands.json",
 			"type": "json",
-			"url": "land/lands.json"
+			"name": "lands_json"
 		},
 		{
-			"name": "citys_json",
+			"url": "land/citys.json",
 			"type": "json",
-			"url": "land/citys.json"
+			"name": "citys_json"
 		},
 		{
-			"name": "city_lays_json",
+			"url": "land/city_lays.json",
 			"type": "json",
-			"url": "land/city_lays.json"
+			"name": "city_lays_json"
 		},
 		{
-			"name": "account_json",
+			"url": "land/account.json",
 			"type": "json",
-			"url": "land/account.json"
+			"name": "account_json"
 		},
 		{
-			"name": "roles_json",
+			"url": "land/roles.json",
 			"type": "json",
-			"url": "land/roles.json"
+			"name": "roles_json"
+		},
+		{
+			"url": "assets/tree2.png",
+			"type": "image",
+			"name": "tree2_png"
 		}
 	]
 }

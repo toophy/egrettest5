@@ -13,7 +13,7 @@ var game_file_list = [
 	"libs/modules/egret3d/egret3d.js",
 	"libs/modules/dragonBones/dragonBones.js",
 	"bin-debug/GameTest/util.js",
-	"bin-debug/GameTest/scene_set.js",
+	"bin-debug/GameMap/BaseTest.js",
 	"bin-debug/GameMap/CoreElement.js",
 	"bin-debug/GameMap/game_map.js",
 	"bin-debug/GameMap/Role.js",
@@ -22,7 +22,7 @@ var game_file_list = [
 	"bin-debug/GameTest/MyLand.js",
 	"bin-debug/GameTest/scene_obj.js",
 	"bin-debug/GameTest/scene_page.js",
-	"bin-debug/GameMap/BaseTest.js",
+	"bin-debug/Util.js",
 	"bin-debug/GameTest/scene.js",
 	"bin-debug/GameTest/stage.js",
 	"bin-debug/FlyContainer.js",
@@ -31,7 +31,7 @@ var game_file_list = [
 	"bin-debug/LoadingUI.js",
 	"bin-debug/Main.js",
 	"bin-debug/TestContainer.js",
-	"bin-debug/Util.js",
+	"bin-debug/GameTest/scene_set.js",
 	//----auto game_file_list end----
 ];
 

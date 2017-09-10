@@ -80,8 +80,34 @@ namespace tgame {
         public down: CnfCityRow;
     }
 
+    export class CnfBuildBlock {
+        public shape: string;
+        public color: number;
+        public res: string;
+        public x: number;
+        public y: number;
+        public width: number;
+        public height: number;
+    }
+
+    export class CnfBuildRow {
+        public type: string;
+        public data: CnfBuildBlock;
+    }
+
+    export class CnfBuild {
+        public id: number;
+        public sort: number;
+        public master: string;
+        public up: Array<CnfBuildRow>;
+        public up2: Array<CnfBuildRow>;
+        public middle: Array<CnfBuildRow>;
+        public down: Array<CnfBuildRow>;
+    }
+
     export class CnfLand {
         public citys: { [key: string]: CnfCity };
+        public builds: { [key: string]: CnfBuild };
     }
 
     export class LandView {
@@ -100,10 +126,30 @@ namespace tgame {
             this.cnfs = <CnfLand>jsonData;
             for (let p in this.cnfs.citys) {
                 let cts: egret.Sprite = new egret.Sprite();
-                this.LoadCityRow(cts, this.cnfs.citys[p].up, 0, 0, 1136, this.up_height);
-                this.LoadCityRow(cts, this.cnfs.citys[p].up2, 0, this.up_height, 1136, this.up2_height);
-                this.LoadCityRow(cts, this.cnfs.citys[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
-                this.LoadCityRow(cts, this.cnfs.citys[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
+                if (this.cnfs.citys[p] != null) {
+                    this.LoadCityRow(cts, this.cnfs.citys[p].up, 0, 0, 1136, this.up_height);
+                }
+                if (this.cnfs.builds[p] != null) {
+                    this.LoadCityBuild(cts, this.cnfs.builds[p].up, 0, 0, 1136, this.up_height);
+                }
+                if (this.cnfs.citys[p] != null) {
+                    this.LoadCityRow(cts, this.cnfs.citys[p].up2, 0, this.up_height, 1136, this.up2_height);
+                }
+                if (this.cnfs.builds[p] != null) {
+                    this.LoadCityBuild(cts, this.cnfs.builds[p].up2, 0, this.up_height, 1136, this.up2_height);
+                }
+                if (this.cnfs.citys[p] != null) {
+                    this.LoadCityRow(cts, this.cnfs.citys[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
+                }
+                if (this.cnfs.builds[p] != null) {
+                    this.LoadCityBuild(cts, this.cnfs.builds[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
+                }
+                if (this.cnfs.citys[p] != null) {
+                    this.LoadCityRow(cts, this.cnfs.citys[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
+                }
+                if (this.cnfs.builds[p] != null) {
+                    this.LoadCityBuild(cts, this.cnfs.builds[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
+                }
                 this.citySprite.push(cts);
             }
         }
@@ -121,8 +167,12 @@ namespace tgame {
                 this.citySprite[i].x += x;
             }
         }
-        
+
         private LoadCityRow(cts: egret.Sprite, ctr: CnfCityRow, x: number, y: number, w: number, h: number) {
+            if (ctr == null || cts == null) {
+                return;
+            }
+
             if (ctr.type == "shape") {
                 let bg: egret.Shape = new egret.Shape();
                 bg.graphics.beginFill(ctr.data.color, 100);
@@ -140,6 +190,31 @@ namespace tgame {
                 bg4.x = x;
                 bg4.y = y;
                 cts.addChild(bg4);
+            }
+        }
+
+        private LoadCityBuild(cts: egret.Sprite, ctr: Array<CnfBuildRow>, x: number, y: number, w: number, h: number) {
+            if (ctr == null || cts == null) {
+                return;
+            }
+
+            for (let i in ctr) {
+                let lc = ctr[i]
+
+                if (lc.type == "shape") {
+                    let bg: egret.Shape = new egret.Shape();
+                    bg.graphics.beginFill(lc.data.color, 100);
+                    bg.graphics.drawRect(0, 0, lc.data.width, lc.data.height);
+                    bg.graphics.endFill();
+                    bg.x = x + lc.data.x;
+                    bg.y = y + lc.data.y;
+                    cts.addChild(bg);
+                } else if (lc.type == "image") {
+                    let bg4: egret.Bitmap = new egret.Bitmap(RES.getRes(lc.data.res));
+                    bg4.x = x + lc.data.x;
+                    bg4.y = y + lc.data.y;
+                    cts.addChild(bg4);
+                }
             }
         }
 
