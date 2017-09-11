@@ -33,6 +33,7 @@ class Mecha {
     private _target: egret.Point = new egret.Point();
 
     private _parent: egret.Sprite = null;
+    private _ground_y: number = 0;
 
     public constructor() {
         this._armature = GameMapContainer.instance.factory.buildArmature("mecha_1502b");
@@ -60,13 +61,15 @@ class Mecha {
     }
 
     public setParent(p:egret.Sprite,x:number,y:number) {
-        if (this._parent==null) {
+        if (this._parent!=null) {
             this._parent.removeChild(this._armatureDisplay);
         }
         this._parent = p
         this._parent.addChild(this._armatureDisplay);
+        this._ground_y = y;
+
         this._armatureDisplay.x = x;
-        this._armatureDisplay.y = y;
+        this._armatureDisplay.y = this._ground_y;
     }
 
     public move(dir: number): void {
@@ -244,8 +247,8 @@ class Mecha {
             this._speedY += GameMapContainer.G;
 
             this._armatureDisplay.y += this._speedY;
-            if (this._armatureDisplay.y > GameMapContainer.GROUND) {
-                this._armatureDisplay.y = GameMapContainer.GROUND;
+            if (this._armatureDisplay.y > this._ground_y) {
+                this._armatureDisplay.y = this._ground_y;
                 this._isJumpingA = false;
                 this._isJumpingB = false;
                 this._speedY = 0;

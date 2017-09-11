@@ -44,6 +44,7 @@ var tgame;
     }());
     tgame.LandConfig = LandConfig;
     __reflect(LandConfig.prototype, "tgame.LandConfig");
+    // 行
     var CnfRowBlock = (function () {
         function CnfRowBlock() {
         }
@@ -65,6 +66,7 @@ var tgame;
     }());
     tgame.CnfCity = CnfCity;
     __reflect(CnfCity.prototype, "tgame.CnfCity");
+    // 建筑
     var CnfBuildBlock = (function () {
         function CnfBuildBlock() {
         }
@@ -86,6 +88,28 @@ var tgame;
     }());
     tgame.CnfBuild = CnfBuild;
     __reflect(CnfBuild.prototype, "tgame.CnfBuild");
+    // 演员
+    var CnfActorBlock = (function () {
+        function CnfActorBlock() {
+        }
+        return CnfActorBlock;
+    }());
+    tgame.CnfActorBlock = CnfActorBlock;
+    __reflect(CnfActorBlock.prototype, "tgame.CnfActorBlock");
+    var CnfActorRow = (function () {
+        function CnfActorRow() {
+        }
+        return CnfActorRow;
+    }());
+    tgame.CnfActorRow = CnfActorRow;
+    __reflect(CnfActorRow.prototype, "tgame.CnfActorRow");
+    var CnfActor = (function () {
+        function CnfActor() {
+        }
+        return CnfActor;
+    }());
+    tgame.CnfActor = CnfActor;
+    __reflect(CnfActor.prototype, "tgame.CnfActor");
     var CnfLand = (function () {
         function CnfLand() {
         }
@@ -93,6 +117,91 @@ var tgame;
     }());
     tgame.CnfLand = CnfLand;
     __reflect(CnfLand.prototype, "tgame.CnfLand");
+    // easy ai
+    var EasyAI = (function () {
+        function EasyAI() {
+            this._actor = null;
+            this._state = 0;
+            this._lastTime = new Date().getTime();
+            this._left = false;
+            this._right = false;
+        }
+        EasyAI.prototype.setActor = function (a) {
+            this._actor = a;
+        };
+        EasyAI.prototype.update = function () {
+            var now = new Date().getTime();
+            if (now > this._lastTime + 3000) {
+                this._lastTime = new Date().getTime();
+                var new_state = Math.floor(Math.random() * 4);
+                if (new_state != this._state || this._state != 0) {
+                    this._state = new_state;
+                    switch (this._state) {
+                        case 0:
+                            this._left = false;
+                            this._right = false;
+                            this._updateMove(0);
+                            break;
+                        case 1:
+                            this._left = true;
+                            this._right = false;
+                            this._updateMove(-1);
+                            // this._moveGrounds(1);
+                            break;
+                        case 2:
+                            this._right = true;
+                            this._left = false;
+                            this._updateMove(1);
+                            // this._moveGrounds(-1);
+                            break;
+                        case 3:
+                            this._actor.jump();
+                            break;
+                        case 4:
+                            break;
+                    }
+                }
+            }
+            else {
+                switch (this._state) {
+                    case 1:
+                        this._left = true;
+                        this._right = false;
+                        this._updateMove(-1);
+                        // this._moveGrounds(1);
+                        break;
+                    case 2:
+                        this._right = true;
+                        this._left = false;
+                        this._updateMove(1);
+                        // this._moveGrounds(-1);
+                        break;
+                    case 3:
+                        this._actor.jump();
+                        break;
+                    case 4:
+                        break;
+                }
+            }
+        };
+        EasyAI.prototype._updateMove = function (dir) {
+            if (this._left && this._right) {
+                this._actor.move(dir);
+            }
+            else if (this._left) {
+                this._actor.move(-1);
+            }
+            else if (this._right) {
+                this._actor.move(1);
+            }
+            else {
+                this._actor.move(0);
+            }
+        };
+        return EasyAI;
+    }());
+    tgame.EasyAI = EasyAI;
+    __reflect(EasyAI.prototype, "tgame.EasyAI");
     var LandView = (function () {
         function LandView() {
             this.up_height = 240;
@@ -100,6 +209,8 @@ var tgame;
             this.middle_height = 200; //76;
             this.down_height = 100; //62;
             this.citySprite = new Array();
+            this._actors = new Array();
+            this._easyActorAI = new Array();
         }
         LandView.prototype.LoadLand = function (jsonData) {
             this.cnfs = jsonData;
@@ -111,11 +222,17 @@ var tgame;
                 if (this.cnfs.builds[p] != null) {
                     this.LoadCityBuild(cts, this.cnfs.builds[p].up, 0, 0, 1136, this.up_height);
                 }
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].up, 0, 0, 1136, this.up_height);
+                }
                 if (this.cnfs.citys[p] != null) {
                     this.LoadCityRow(cts, this.cnfs.citys[p].up2, 0, this.up_height, 1136, this.up2_height);
                 }
                 if (this.cnfs.builds[p] != null) {
                     this.LoadCityBuild(cts, this.cnfs.builds[p].up2, 0, this.up_height, 1136, this.up2_height);
+                }
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].up2, 0, this.up_height, 1136, this.up2_height);
                 }
                 if (this.cnfs.citys[p] != null) {
                     this.LoadCityRow(cts, this.cnfs.citys[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
@@ -123,11 +240,17 @@ var tgame;
                 if (this.cnfs.builds[p] != null) {
                     this.LoadCityBuild(cts, this.cnfs.builds[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
                 }
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
+                }
                 if (this.cnfs.citys[p] != null) {
                     this.LoadCityRow(cts, this.cnfs.citys[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
                 }
                 if (this.cnfs.builds[p] != null) {
                     this.LoadCityBuild(cts, this.cnfs.builds[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
+                }
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
                 }
                 this.citySprite.push(cts);
             }
@@ -142,6 +265,14 @@ var tgame;
         LandView.prototype.ScrollLand = function (x) {
             for (var i = 0; i < this.citySprite.length; ++i) {
                 this.citySprite[i].x += x;
+            }
+        };
+        LandView.prototype.UpdateActor = function () {
+            for (var i in this._easyActorAI) {
+                this._easyActorAI[i].update();
+            }
+            for (var i in this._actors) {
+                this._actors[i].update();
             }
         };
         LandView.prototype.LoadCityRow = function (cts, ctr, x, y, w, h) {
@@ -188,6 +319,37 @@ var tgame;
                     bg4.x = x + lc.data.x;
                     bg4.y = y + lc.data.y;
                     cts.addChild(bg4);
+                }
+            }
+        };
+        LandView.prototype.LoadCityActor = function (cts, ctr, x, y, w, h) {
+            if (ctr == null || cts == null) {
+                return;
+            }
+            for (var i in ctr) {
+                var lc = ctr[i];
+                if (lc.type == "shape") {
+                    var bg = new egret.Shape();
+                    bg.graphics.beginFill(lc.data.color, 100);
+                    bg.graphics.drawRect(0, 0, lc.data.width, lc.data.height);
+                    bg.graphics.endFill();
+                    bg.x = x + lc.data.x;
+                    bg.y = y + lc.data.y;
+                    cts.addChild(bg);
+                }
+                else if (lc.type == "image") {
+                    var bg4 = new egret.Bitmap(RES.getRes(lc.data.res));
+                    bg4.x = x + lc.data.x;
+                    bg4.y = y + lc.data.y;
+                    cts.addChild(bg4);
+                }
+                else if (lc.type == "animation") {
+                    var tmpActor = new Mecha();
+                    tmpActor.setParent(cts, x + lc.data.x, y + lc.data.y);
+                    this._actors.push(tmpActor);
+                    var tmpActorAI = new EasyAI();
+                    tmpActorAI.setActor(tmpActor);
+                    this._easyActorAI.push(tmpActorAI);
                 }
             }
         };

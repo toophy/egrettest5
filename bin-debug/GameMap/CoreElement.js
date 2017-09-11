@@ -25,6 +25,7 @@ var Mecha = (function () {
         this._attackState = null;
         this._target = new egret.Point();
         this._parent = null;
+        this._ground_y = 0;
         this._armature = GameMapContainer.instance.factory.buildArmature("mecha_1502b");
         this._armatureDisplay = this._armature.display;
         // this._armatureDisplay.x = GameMapContainer.instance.rootContainer.stage.stageWidth * 0.5;
@@ -45,13 +46,14 @@ var Mecha = (function () {
         dragonBones.WorldClock.clock.add(this._armature);
     }
     Mecha.prototype.setParent = function (p, x, y) {
-        if (this._parent == null) {
+        if (this._parent != null) {
             this._parent.removeChild(this._armatureDisplay);
         }
         this._parent = p;
         this._parent.addChild(this._armatureDisplay);
+        this._ground_y = y;
         this._armatureDisplay.x = x;
-        this._armatureDisplay.y = y;
+        this._armatureDisplay.y = this._ground_y;
     };
     Mecha.prototype.move = function (dir) {
         if (this._moveDir == dir) {
@@ -200,8 +202,8 @@ var Mecha = (function () {
             }
             this._speedY += GameMapContainer.G;
             this._armatureDisplay.y += this._speedY;
-            if (this._armatureDisplay.y > GameMapContainer.GROUND) {
-                this._armatureDisplay.y = GameMapContainer.GROUND;
+            if (this._armatureDisplay.y > this._ground_y) {
+                this._armatureDisplay.y = this._ground_y;
                 this._isJumpingA = false;
                 this._isJumpingB = false;
                 this._speedY = 0;

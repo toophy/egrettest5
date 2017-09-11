@@ -57,6 +57,7 @@ namespace tgame {
         }
     }
 
+    // 行
     export class CnfRowBlock {
         public shape: string;
         public color: number;
@@ -80,6 +81,7 @@ namespace tgame {
         public down: CnfCityRow;
     }
 
+    // 建筑
     export class CnfBuildBlock {
         public shape: string;
         public color: number;
@@ -105,10 +107,200 @@ namespace tgame {
         public down: Array<CnfBuildRow>;
     }
 
+    // 演员
+    export class CnfActorBlock {
+        public shape: string;
+        public color: number;
+        public res: string;
+        public x: number;
+        public y: number;
+        public width: number;
+        public height: number;
+    }
+
+    export class CnfActorRow {
+        public type: string;
+        public data: CnfActorBlock;
+    }
+
+    export class CnfActor {
+        public id: number;
+        public sort: number;
+        public master: string;
+        public up: Array<CnfActorRow>;
+        public up2: Array<CnfActorRow>;
+        public middle: Array<CnfActorRow>;
+        public down: Array<CnfActorRow>;
+    }
+
     export class CnfLand {
         public citys: { [key: string]: CnfCity };
         public builds: { [key: string]: CnfBuild };
+        public actors: { [key: string]: CnfActor };
     }
+
+
+    // easy ai
+    export class EasyAI {
+        private _actor: Mecha = null;
+        private _state: number = 0;
+        private _lastTime: number = new Date().getTime();
+        private _left: boolean = false;
+        private _right: boolean = false;
+
+        public constructor() {
+        }
+
+        public setActor(a: Mecha) {
+            this._actor = a;
+        }
+
+        public update() {
+            let now: number = new Date().getTime();
+            if (now > this._lastTime + 3000) {
+                this._lastTime = new Date().getTime();
+                let new_state = Math.floor(Math.random() * 4);
+
+                if (new_state != this._state || this._state != 0) {
+                    this._state = new_state;
+                    switch (this._state) {
+                        case 0://"null":
+                            this._left = false;
+                            this._right = false;
+                            this._updateMove(0);
+                            break;
+                        case 1://"left_walk":
+                            this._left = true;
+                            this._right = false;
+                            this._updateMove(-1);
+                            // this._moveGrounds(1);
+                            break;
+                        case 2://"right_walk":
+                            this._right = true;
+                            this._left = false;
+                            this._updateMove(1);
+                            // this._moveGrounds(-1);
+                            break;
+                        case 3://"jump":
+                            this._actor.jump();
+                            break;
+                        case 4://
+                            break;
+                    }
+                }
+            } else {
+                switch (this._state) {
+                    case 1://"left_walk":
+                        this._left = true;
+                        this._right = false;
+                        this._updateMove(-1);
+                        // this._moveGrounds(1);
+                        break;
+                    case 2://"right_walk":
+                        this._right = true;
+                        this._left = false;
+                        this._updateMove(1);
+                        // this._moveGrounds(-1);
+                        break;
+                    case 3://"jump":
+                        this._actor.jump();
+                        break;
+                    case 4://
+                        break;
+                }
+            }
+        }
+
+
+        private _updateMove(dir: number): void {
+            if (this._left && this._right) {
+                this._actor.move(dir);
+            } else if (this._left) {
+                this._actor.move(-1);
+            } else if (this._right) {
+                this._actor.move(1);
+            } else {
+                this._actor.move(0);
+            }
+        }
+
+        // public addBullet(bullet: Bullet): void {
+        //     this._bullets.push(bullet);
+        // }
+
+        // private _touchHandler(event: egret.TouchEvent): void {
+        //     this._actor.aim(event.stageX, event.stageY);
+
+        //     if (event.type == egret.TouchEvent.TOUCH_BEGIN) {
+        //         this._actor.attack(true);
+        //     } else {
+        //         this._actor.attack(false);
+        //     }
+        // }
+
+        // private _moveGrounds(s:number){
+        //    for (let i of this._grounds) {
+        //        if(s==1){
+        //            i.x += 2*s;
+        //        } else if(s==-1){
+        //            i.x += 2*s;
+        //        }
+        //    }
+        //    this._lands.ScrollLand(2*s);
+        // }
+
+        //     private _keyHandler(event: KeyboardEvent): void {
+        // const isDown: boolean = event.type == "keydown";
+        // switch (event.keyCode) {
+        //     case 37:
+        //     case 65:
+        //         GameMapContainer.instance._left = isDown;
+        //         GameMapContainer.instance._updateMove(-1);
+        //         GameMapContainer.instance._moveGrounds(1);
+        //         break;
+
+        //     case 39:
+        //     case 68:
+        //         GameMapContainer.instance._right = isDown;
+        //         GameMapContainer.instance._updateMove(1);
+        //         GameMapContainer.instance._moveGrounds(-1);
+        //         break;
+
+        //     case 38:
+        //     case 87:
+        //         if (isDown) {
+        //             GameMapContainer.instance._player.jump();
+        //         }
+        //         break;
+
+        //     case 83:
+        //     case 40:
+        //         GameMapContainer.instance._player.squat(isDown);
+        //         break;
+
+        //     case 81:
+        //         if (isDown) {
+        //             GameMapContainer.instance._player.switchWeaponR();
+        //         }
+        //         break;
+
+        //     case 69:
+        //         if (isDown) {
+        //             GameMapContainer.instance._player.switchWeaponL();
+        //         }
+        //         break;
+
+        //     case 32:
+        //         if (isDown) {
+        //             GameMapContainer.instance._player.switchWeaponR();
+        //             GameMapContainer.instance._player.switchWeaponL();
+        //         }
+        //         break;
+        // }
+
+
+    }
+
 
     export class LandView {
         private cnfs: CnfLand;
@@ -117,9 +309,13 @@ namespace tgame {
         private up2_height: number = 100;//66;
         private middle_height: number = 200;//76;
         private down_height: number = 100;//62;
+        private _actors: Array<Mecha>;
+        private _easyActorAI: Array<EasyAI>;
 
         public constructor() {
             this.citySprite = new Array<egret.Sprite>();
+            this._actors = new Array<Mecha>();
+            this._easyActorAI = new Array<EasyAI>();
         }
 
         public LoadLand(jsonData: any) {
@@ -132,23 +328,38 @@ namespace tgame {
                 if (this.cnfs.builds[p] != null) {
                     this.LoadCityBuild(cts, this.cnfs.builds[p].up, 0, 0, 1136, this.up_height);
                 }
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].up, 0, 0, 1136, this.up_height);
+                }
+
                 if (this.cnfs.citys[p] != null) {
                     this.LoadCityRow(cts, this.cnfs.citys[p].up2, 0, this.up_height, 1136, this.up2_height);
                 }
                 if (this.cnfs.builds[p] != null) {
                     this.LoadCityBuild(cts, this.cnfs.builds[p].up2, 0, this.up_height, 1136, this.up2_height);
                 }
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].up2, 0, this.up_height, 1136, this.up2_height);
+                }
+
                 if (this.cnfs.citys[p] != null) {
                     this.LoadCityRow(cts, this.cnfs.citys[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
                 }
                 if (this.cnfs.builds[p] != null) {
                     this.LoadCityBuild(cts, this.cnfs.builds[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
                 }
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
+                }
+
                 if (this.cnfs.citys[p] != null) {
                     this.LoadCityRow(cts, this.cnfs.citys[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
                 }
                 if (this.cnfs.builds[p] != null) {
                     this.LoadCityBuild(cts, this.cnfs.builds[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
+                }
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
                 }
                 this.citySprite.push(cts);
             }
@@ -165,6 +376,15 @@ namespace tgame {
         public ScrollLand(x: number) {
             for (let i = 0; i < this.citySprite.length; ++i) {
                 this.citySprite[i].x += x;
+            }
+        }
+
+        public UpdateActor() {
+            for (let i in this._easyActorAI) {
+                this._easyActorAI[i].update();
+            }
+            for (let i in this._actors) {
+                this._actors[i].update();
             }
         }
 
@@ -217,6 +437,40 @@ namespace tgame {
                 }
             }
         }
+
+        private LoadCityActor(cts: egret.Sprite, ctr: Array<CnfActorRow>, x: number, y: number, w: number, h: number) {
+            if (ctr == null || cts == null) {
+                return;
+            }
+
+            for (let i in ctr) {
+                let lc = ctr[i]
+
+                if (lc.type == "shape") {
+                    let bg: egret.Shape = new egret.Shape();
+                    bg.graphics.beginFill(lc.data.color, 100);
+                    bg.graphics.drawRect(0, 0, lc.data.width, lc.data.height);
+                    bg.graphics.endFill();
+                    bg.x = x + lc.data.x;
+                    bg.y = y + lc.data.y;
+                    cts.addChild(bg);
+                } else if (lc.type == "image") {
+                    let bg4: egret.Bitmap = new egret.Bitmap(RES.getRes(lc.data.res));
+                    bg4.x = x + lc.data.x;
+                    bg4.y = y + lc.data.y;
+                    cts.addChild(bg4);
+                } else if (lc.type == "animation") {
+                    let tmpActor: Mecha = new Mecha();
+                    tmpActor.setParent(cts, x + lc.data.x, y + lc.data.y);
+                    this._actors.push(tmpActor);
+
+                    let tmpActorAI: EasyAI = new EasyAI();
+                    tmpActorAI.setActor(tmpActor);
+                    this._easyActorAI.push(tmpActorAI);
+                }
+            }
+        }
+
 
     }
 

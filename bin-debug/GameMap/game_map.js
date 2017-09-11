@@ -23,25 +23,7 @@ var GameMapContainer = (function (_super) {
         //      this._resourceConfigURL = "resource/CoreElement.json";
     }
     GameMapContainer.prototype.createScene = function () {
-        // // 背景
-        // let bg: egret.Bitmap = new egret.Bitmap(RES.getRes("nbg_4_png"));
-        // //bg.width = this.rootContainer.stage.stageWidth;
-        // //bg.height = this.rootContainer.stage.stageHeight;
-        // bg.y = this.rootContainer.stage.stageHeight - bg.height;
-        // this.addChild(bg);
-        // this._grounds.push(bg);
-        var data = RES.getRes("land_json");
-        this._lands = new tgame.LandView();
-        this._lands.LoadLand(data);
-        this._lands.ShowLand(this);
-        // // 背景
-        // let bg3: egret.Bitmap = new egret.Bitmap(RES.getRes("nbg_2_png"));
-        // //bg3.width = this.rootContainer.stage.stageWidth;
-        // // bg3.height = this.rootContainer.stage.stageHeight;
-        // bg3.y = this.rootContainer.stage.stageHeight - bg3.height - 50;
-        // this.addChild(bg3);
-        // this._grounds.push(bg3);
-        GameMapContainer.GROUND = this.rootContainer.stage.stageHeight - 50;
+        GameMapContainer.GROUND = this.rootContainer.stage.stageHeight - 150;
         this.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
         this.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
         // mouse move        
@@ -50,17 +32,15 @@ var GameMapContainer = (function (_super) {
             onTouchMove.call(this, x, y, touchPointID);
             GameMapContainer.instance._player.aim(x, y);
         };
+        var data = RES.getRes("land_json");
+        this._lands = new tgame.LandView();
+        this._lands.LoadLand(data);
+        this._lands.ShowLand(this);
         this._player = new Mecha();
+        this._player.setParent(this, 0, 450);
         // 我的飞机
-        this.myFly = new Role(this, "f1_png", this.rootContainer.stage.stageWidth / 2, this.rootContainer.stage.stageHeight - 120, 1);
-        this.addChild(this.myFly);
-        // // 背景
-        // let bg4: egret.Bitmap = new egret.Bitmap(RES.getRes("nbg_3_png"));
-        // //bg4.width = this.rootContainer.stage.stageWidth;
-        // //bg4.height = this.rootContainer.stage.stageHeight;
-        // bg4.y = this.rootContainer.stage.stageHeight - bg4.height;
-        // this.addChild(bg4);
-        // this._grounds.push(bg4);
+        // this.myFly = new Role(this, "f1_png", this.rootContainer.stage.stageWidth / 2, this.rootContainer.stage.stageHeight-120, 1);
+        // this.addChild(this.myFly);
         this.touchEnabled = true;
         this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onFlyTouchBegin, this);
         this.addEventListener(egret.TouchEvent.TOUCH_END, this.onFlyTouchEnd, this);
@@ -172,6 +152,7 @@ var GameMapContainer = (function (_super) {
         }
     };
     GameMapContainer.prototype.onUpdateFrame = function (evt) {
+        this._lands.UpdateActor();
         this._player.update();
         var i = this._bullets.length;
         while (i--) {
@@ -274,7 +255,7 @@ var GameMapContainer = (function (_super) {
     };
     GameMapContainer.prototype.onFlyTouchEnd = function (evt) {
         //this.rootContainer.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onFlyTouchMove, this);
-        if (!this.myFly.dead) {
+        if (this.myFly && !this.myFly.dead) {
             var pos = this.globalToLocal(evt.stageX, evt.stageY);
             if (this.zhangAi && !this.zhangAi.hitTest(this.myFly)) {
                 this.myFly.moveTo(pos.x, pos.y);

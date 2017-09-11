@@ -343,5 +343,38 @@
                 }
             ]
         }
+    },
+    "actors": {
+        "city1": {
+            "id": 1,
+            "sort": 1,
+            "master": "player1",
+            "middle": [
+                {
+                    "type": "animation",
+                    "data": {
+                        "shape": "rect",
+                        "color": 100,
+                        "res": "mecha_1502b",
+                        "x": 50,
+                        "y": 150,
+                        "width": 100,
+                        "height": 240
+                    }
+                },
+                {
+                    "type": "animation",
+                    "data": {
+                        "shape": "rect",
+                        "color": 100,
+                        "res": "mecha_1502b",
+                        "x": 250,
+                        "y": 150,
+                        "width": 100,
+                        "height": 240
+                    }
+                }
+            ]
+        }
     }
 }
