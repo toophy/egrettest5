@@ -37,7 +37,7 @@ var GameMapContainer = (function (_super) {
         this._lands.LoadLand(data);
         this._lands.ShowLand(this);
         this._player = new Mecha();
-        this._player.setParent(this, 0, 450);
+        this._player.setParent(this._lands, this, 0, 450);
         // 我的飞机
         // this.myFly = new Role(this, "f1_png", this.rootContainer.stage.stageWidth / 2, this.rootContainer.stage.stageHeight-120, 1);
         // this.addChild(this.myFly);
@@ -152,7 +152,7 @@ var GameMapContainer = (function (_super) {
         }
     };
     GameMapContainer.prototype.onUpdateFrame = function (evt) {
-        this._lands.UpdateActor();
+        this._lands.Update();
         this._player.update();
         var i = this._bullets.length;
         while (i--) {

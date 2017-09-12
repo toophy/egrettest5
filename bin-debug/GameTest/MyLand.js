@@ -132,7 +132,7 @@ var tgame;
         EasyAI.prototype.update = function () {
             var now = new Date().getTime();
             if (now > this._lastTime) {
-                var new_state = Math.floor(Math.random() * 6);
+                var new_state = Math.floor(Math.random() * 8);
                 if (new_state != this._state || this._state != 0) {
                     this._state = new_state;
                     switch (this._state) {
@@ -166,6 +166,14 @@ var tgame;
                             break;
                         case 5:
                             this._actor.switchWeaponL();
+                            this._lastTime = new Date().getTime() + 500;
+                            break;
+                        case 6:
+                            this._actor.attack(true);
+                            this._lastTime = new Date().getTime() + 1000;
+                            break;
+                        case 7:
+                            this._actor.attack(false);
                             this._lastTime = new Date().getTime() + 500;
                             break;
                     }
@@ -217,9 +225,12 @@ var tgame;
             this.up2_height = 100; //66;
             this.middle_height = 200; //76;
             this.down_height = 100; //62;
-            this.citySprite = new Array();
-            this._actors = new Array();
-            this._easyActorAI = new Array();
+            this.citySprite = [];
+            this._actors = [];
+            this._bullets = [];
+            this._easyActorAI = [];
+            this._bulletSprite = null;
+            this._bulletSprite = new egret.Sprite();
         }
         LandView.prototype.loadCityUp = function () {
             var cts = new egret.Sprite();
@@ -340,19 +351,34 @@ var tgame;
             for (var i = 0; i < this.citySprite.length; ++i) {
                 s.addChild(this.citySprite[i]);
             }
+            // 子弹层
+            s.addChild(this._bulletSprite);
         };
         LandView.prototype.ScrollLand = function (x) {
             for (var i = 0; i < this.citySprite.length; ++i) {
                 this.citySprite[i].x += x;
             }
         };
-        LandView.prototype.UpdateActor = function () {
-            for (var i in this._easyActorAI) {
-                this._easyActorAI[i].update();
+        LandView.prototype.Update = function () {
+            for (var i_1 in this._easyActorAI) {
+                this._easyActorAI[i_1].update();
             }
-            for (var i in this._actors) {
-                this._actors[i].update();
+            for (var i_2 in this._actors) {
+                this._actors[i_2].update();
             }
+            var i = this._bullets.length;
+            while (i--) {
+                var bullet = this._bullets[i];
+                if (bullet.update()) {
+                    this._bullets.splice(i, 1);
+                }
+            }
+        };
+        LandView.prototype.addBullet = function (bullet) {
+            this._bullets.push(bullet);
+        };
+        LandView.prototype.getBulletLayer = function () {
+            return this._bulletSprite;
         };
         LandView.prototype.LoadCityRow = function (cts, ctr, x, y, w, h) {
             if (ctr == null || cts == null) {
@@ -424,8 +450,8 @@ var tgame;
                 }
                 else if (lc.type == "animation") {
                     var tmpActor = new Mecha();
-                    tmpActor.setParent(cts, x + lc.data.x, y + lc.data.y);
-                    tmpActor.setMoveRange(3 * 1136);
+                    tmpActor.setParent(this, cts, x + lc.data.x, y + lc.data.y);
+                    tmpActor.setMoveRange(3 * 1136, 640);
                     this._actors.push(tmpActor);
                     var tmpActorAI = new EasyAI();
                     tmpActorAI.setActor(tmpActor);

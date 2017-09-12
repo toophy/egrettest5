@@ -27,6 +27,8 @@ var Mecha = (function () {
         this._parent = null;
         this._ground_y = 0;
         this._moveRangeWidth = 0;
+        this._moveRangeHeight = 0;
+        this._land = null;
         this._armature = GameMapContainer.instance.factory.buildArmature("mecha_1502b");
         this._armatureDisplay = this._armature.display;
         // this._armatureDisplay.x = GameMapContainer.instance.rootContainer.stage.stageWidth * 0.5;
@@ -46,18 +48,20 @@ var Mecha = (function () {
         // GameMapContainer.instance.addChild(this._armatureDisplay);
         dragonBones.WorldClock.clock.add(this._armature);
     }
-    Mecha.prototype.setParent = function (p, x, y) {
+    Mecha.prototype.setParent = function (land, p, x, y) {
         if (this._parent != null) {
             this._parent.removeChild(this._armatureDisplay);
         }
+        this._land = land;
         this._parent = p;
         this._parent.addChild(this._armatureDisplay);
         this._ground_y = y;
         this._armatureDisplay.x = x;
         this._armatureDisplay.y = this._ground_y;
     };
-    Mecha.prototype.setMoveRange = function (w) {
+    Mecha.prototype.setMoveRange = function (w, h) {
         this._moveRangeWidth = w;
+        this._moveRangeHeight = h;
     };
     Mecha.prototype.move = function (dir) {
         if (this._moveDir == dir) {
@@ -151,11 +155,9 @@ var Mecha = (function () {
         firePoint.x += Math.random() * 2 - 1;
         firePoint.y += Math.random() * 2 - 1;
         var radian = this._faceDir < 0 ? Math.PI - this._aimRadian : this._aimRadian;
-        var bullet = new Bullet("bullet_01", "fireEffect_01", radian + Math.random() * 0.02 - 0.01, 40, firePoint);
-        GameMapContainer.instance.addBullet(bullet);
-        // if(this._parent!=null){
-        //     this._parent.addbu
-        // }
+        var bullet = new Bullet(this._land.getBulletLayer(), "bullet_01", "fireEffect_01", radian + Math.random() * 0.02 - 0.01, 40, firePoint);
+        bullet.setMaxRange(this._moveRangeWidth, this._moveRangeHeight);
+        this._land.addBullet(bullet);
     };
     Mecha.prototype._updateAnimation = function () {
         if (this._isJumpingA) {
@@ -285,12 +287,16 @@ Mecha.WEAPON_L_LIST = ["weapon_1502b_l", "weapon_1005", "weapon_1005b", "weapon_
 Mecha._globalPoint = new egret.Point();
 __reflect(Mecha.prototype, "Mecha");
 var Bullet = (function () {
-    function Bullet(armatureName, effectArmatureName, radian, speed, position) {
+    function Bullet(cts, armatureName, effectArmatureName, radian, speed, position) {
         this._speedX = 0;
         this._speedY = 0;
         this._armature = null;
         this._armatureDisplay = null;
         this._effect = null;
+        this._master = null;
+        this._maxWidth = 0;
+        this._maxHeight = 0;
+        this._master = cts;
         this._speedX = Math.cos(radian) * speed;
         this._speedY = Math.sin(radian) * speed;
         this._armature = GameMapContainer.instance.factory.buildArmature(armatureName);
@@ -312,22 +318,26 @@ var Bullet = (function () {
             }
             this._effect.animation.play("idle");
             dragonBones.WorldClock.clock.add(this._effect);
-            GameMapContainer.instance.addChild(effectDisplay);
+            cts.addChild(effectDisplay);
         }
         dragonBones.WorldClock.clock.add(this._armature);
-        GameMapContainer.instance.addChild(this._armatureDisplay);
+        cts.addChild(this._armatureDisplay);
     }
+    Bullet.prototype.setMaxRange = function (w, h) {
+        this._maxWidth = w;
+        this._maxHeight = h;
+    };
     Bullet.prototype.update = function () {
         this._armatureDisplay.x += this._speedX;
         this._armatureDisplay.y += this._speedY;
-        if (this._armatureDisplay.x < -100 || this._armatureDisplay.x >= GameMapContainer.instance.rootContainer.stage.stageWidth + 100 ||
-            this._armatureDisplay.y < -100 || this._armatureDisplay.y >= GameMapContainer.instance.rootContainer.stage.stageHeight + 100) {
+        if (this._armatureDisplay.x < -100 || this._armatureDisplay.x >= this._maxWidth + 100 ||
+            this._armatureDisplay.y < -100 || this._armatureDisplay.y >= this._maxHeight + 100) {
             dragonBones.WorldClock.clock.remove(this._armature);
-            GameMapContainer.instance.removeChild(this._armatureDisplay);
+            this._master.removeChild(this._armatureDisplay);
             this._armature.dispose();
             if (this._effect) {
                 dragonBones.WorldClock.clock.remove(this._effect);
-                GameMapContainer.instance.removeChild(this._effect.display);
+                this._master.removeChild(this._effect.display);
                 this._effect.dispose();
             }
             return true;

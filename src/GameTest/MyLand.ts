@@ -159,7 +159,7 @@ namespace tgame {
             let now: number = new Date().getTime();
             if (now > this._lastTime) {
 
-                let new_state = Math.floor(Math.random() * 6);
+                let new_state = Math.floor(Math.random() * 8);
 
                 if (new_state != this._state || this._state != 0) {
                     this._state = new_state;
@@ -194,6 +194,14 @@ namespace tgame {
                             break;
                         case 5://
                             this._actor.switchWeaponL();
+                            this._lastTime = new Date().getTime() + 500;
+                            break;
+                        case 6://
+                            this._actor.attack(true);
+                            this._lastTime = new Date().getTime() + 1000;
+                            break;
+                        case 7://
+                            this._actor.attack(false);
                             this._lastTime = new Date().getTime() + 500;
                             break;
                     }
@@ -313,19 +321,22 @@ namespace tgame {
 
 
     export class LandView {
-        private cnfs: CnfLand;
-        private citySprite: Array<egret.Sprite>;
+
         private up_height: number = 240;
         private up2_height: number = 100;//66;
         private middle_height: number = 200;//76;
         private down_height: number = 100;//62;
-        private _actors: Array<Mecha>;
-        private _easyActorAI: Array<EasyAI>;
+
+        private cnfs: CnfLand;
+        private citySprite: Array<egret.Sprite> = [];
+
+        private _actors: Array<Mecha> = [];
+        private _bullets: Array<Bullet> = [];
+        private _easyActorAI: Array<EasyAI> = [];
+        private _bulletSprite: egret.Sprite = null;
 
         public constructor() {
-            this.citySprite = new Array<egret.Sprite>();
-            this._actors = new Array<Mecha>();
-            this._easyActorAI = new Array<EasyAI>();
+            this._bulletSprite = new egret.Sprite();
         }
 
         private loadCityUp() {
@@ -464,6 +475,9 @@ namespace tgame {
             for (let i = 0; i < this.citySprite.length; ++i) {
                 s.addChild(this.citySprite[i]);
             }
+
+            // 子弹层
+            s.addChild(this._bulletSprite);
         }
 
         public ScrollLand(x: number) {
@@ -472,13 +486,30 @@ namespace tgame {
             }
         }
 
-        public UpdateActor() {
+        public Update() {
+
             for (let i in this._easyActorAI) {
                 this._easyActorAI[i].update();
             }
             for (let i in this._actors) {
                 this._actors[i].update();
             }
+
+            let i = this._bullets.length;
+            while (i--) {
+                const bullet = this._bullets[i];
+                if (bullet.update()) {
+                    this._bullets.splice(i, 1);
+                }
+            }
+        }
+
+        public addBullet(bullet: Bullet): void {
+            this._bullets.push(bullet);
+        }
+
+        public getBulletLayer(): egret.Sprite {
+            return this._bulletSprite;
         }
 
         private LoadCityRow(cts: egret.Sprite, ctr: CnfCityRow, x: number, y: number, w: number, h: number) {
@@ -554,8 +585,8 @@ namespace tgame {
                     cts.addChild(bg4);
                 } else if (lc.type == "animation") {
                     let tmpActor: Mecha = new Mecha();
-                    tmpActor.setParent(cts, x + lc.data.x, y + lc.data.y);
-                    tmpActor.setMoveRange(3*1136);
+                    tmpActor.setParent(this, cts, x + lc.data.x, y + lc.data.y);
+                    tmpActor.setMoveRange(3 * 1136, 640);
                     this._actors.push(tmpActor);
 
                     let tmpActorAI: EasyAI = new EasyAI();

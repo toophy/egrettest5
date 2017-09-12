@@ -35,6 +35,8 @@ class Mecha {
     private _parent: egret.Sprite = null;
     private _ground_y: number = 0;
     private _moveRangeWidth: number = 0;
+    private _moveRangeHeight: number = 0;
+    private _land:tgame.LandView = null;
 
     public constructor() {
         this._armature = GameMapContainer.instance.factory.buildArmature("mecha_1502b");
@@ -61,10 +63,11 @@ class Mecha {
         dragonBones.WorldClock.clock.add(this._armature);
     }
 
-    public setParent(p:egret.Sprite,x:number,y:number) {
+    public setParent(land:tgame.LandView,p:egret.Sprite,x:number,y:number) {
         if (this._parent!=null) {
             this._parent.removeChild(this._armatureDisplay);
         }
+        this._land = land;
         this._parent = p
         this._parent.addChild(this._armatureDisplay);
         this._ground_y = y;
@@ -73,8 +76,9 @@ class Mecha {
         this._armatureDisplay.y = this._ground_y;
     }
 
-    public setMoveRange(w:number) {
+    public setMoveRange(w:number,h:number) {
         this._moveRangeWidth = w;
+        this._moveRangeHeight = h;
     }
 
     public move(dir: number): void {
@@ -191,12 +195,10 @@ class Mecha {
         firePoint.y += Math.random() * 2 - 1;
 
         const radian = this._faceDir < 0 ? Math.PI - this._aimRadian : this._aimRadian;
-        const bullet = new Bullet("bullet_01", "fireEffect_01", radian + Math.random() * 0.02 - 0.01, 40, firePoint);
+        const bullet = new Bullet(this._land.getBulletLayer(), "bullet_01", "fireEffect_01", radian + Math.random() * 0.02 - 0.01, 40, firePoint);
+        bullet.setMaxRange(this._moveRangeWidth,this._moveRangeHeight);
 
-        GameMapContainer.instance.addBullet(bullet);
-        // if(this._parent!=null){
-        //     this._parent.addbu
-        // }
+        this._land.addBullet(bullet);
     } 
 
     private _updateAnimation(): void {
@@ -348,8 +350,13 @@ class Bullet {
     private _armature: dragonBones.Armature = null;
     private _armatureDisplay: dragonBones.EgretArmatureDisplay = null;
     private _effect: dragonBones.Armature = null;
+    private _master: egret.Sprite = null;
+    private _maxWidth: number = 0;
+    private _maxHeight: number = 0;
 
-    public constructor(armatureName: string, effectArmatureName: string, radian: number, speed: number, position: egret.Point) {
+    public constructor(cts:egret.Sprite, armatureName: string, effectArmatureName: string, radian: number, speed: number, position: egret.Point) {
+        this._master = cts;
+
         this._speedX = Math.cos(radian) * speed;
         this._speedY = Math.sin(radian) * speed;
 
@@ -375,11 +382,16 @@ class Bullet {
             this._effect.animation.play("idle");
 
             dragonBones.WorldClock.clock.add(this._effect);
-            GameMapContainer.instance.addChild(effectDisplay);
+            cts.addChild(effectDisplay);
         }
 
         dragonBones.WorldClock.clock.add(this._armature);
-        GameMapContainer.instance.addChild(this._armatureDisplay);
+        cts.addChild(this._armatureDisplay);
+    }
+
+    public setMaxRange(w:number,h:number){
+        this._maxWidth = w;
+        this._maxHeight = h;
     }
 
     public update(): Boolean {
@@ -387,16 +399,16 @@ class Bullet {
         this._armatureDisplay.y += this._speedY;
 
         if (
-            this._armatureDisplay.x < -100 || this._armatureDisplay.x >= GameMapContainer.instance.rootContainer.stage.stageWidth + 100 ||
-            this._armatureDisplay.y < -100 || this._armatureDisplay.y >= GameMapContainer.instance.rootContainer.stage.stageHeight + 100
+            this._armatureDisplay.x < -100 || this._armatureDisplay.x >= this._maxWidth+ 100 ||
+            this._armatureDisplay.y < -100 || this._armatureDisplay.y >= this._maxHeight + 100
         ) {
             dragonBones.WorldClock.clock.remove(this._armature);
-            GameMapContainer.instance.removeChild(this._armatureDisplay);
+            this._master.removeChild(this._armatureDisplay);
             this._armature.dispose();
 
             if (this._effect) {
                 dragonBones.WorldClock.clock.remove(this._effect);
-                GameMapContainer.instance.removeChild(<dragonBones.EgretArmatureDisplay>this._effect.display);
+                this._master.removeChild(<dragonBones.EgretArmatureDisplay>this._effect.display);
                 this._effect.dispose();
             }
 

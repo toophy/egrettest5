@@ -45,7 +45,7 @@ class GameMapContainer extends egret.Sprite {
 
     public createScene() {
 
-        
+
         GameMapContainer.GROUND = this.rootContainer.stage.stageHeight - 150;
         this.factory.parseDragonBonesData(RES.getRes("dragonBonesData"));
         this.factory.parseTextureAtlasData(RES.getRes("textureDataA"), RES.getRes("textureA"));
@@ -62,7 +62,7 @@ class GameMapContainer extends egret.Sprite {
         this._lands.ShowLand(this);
 
         this._player = new Mecha();
-        this._player.setParent(this,0,450);
+        this._player.setParent(this._lands, this, 0, 450);
 
         // 我的飞机
         // this.myFly = new Role(this, "f1_png", this.rootContainer.stage.stageWidth / 2, this.rootContainer.stage.stageHeight-120, 1);
@@ -119,15 +119,15 @@ class GameMapContainer extends egret.Sprite {
         }
     }
 
-    private _moveGrounds(s:number){
-       for (let i of this._grounds) {
-           if(s==1){
-               i.x += 2*s;
-           } else if(s==-1){
-               i.x += 2*s;
-           }
-       }
-       this._lands.ScrollLand(2*s);
+    private _moveGrounds(s: number) {
+        for (let i of this._grounds) {
+            if (s == 1) {
+                i.x += 2 * s;
+            } else if (s == -1) {
+                i.x += 2 * s;
+            }
+        }
+        this._lands.ScrollLand(2 * s);
     }
 
     private _keyHandler(event: KeyboardEvent): void {
@@ -194,7 +194,7 @@ class GameMapContainer extends egret.Sprite {
 
     private onUpdateFrame(evt: egret.Event) {
 
-        this._lands.UpdateActor();
+        this._lands.Update();
 
         this._player.update();
 
