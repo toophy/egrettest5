@@ -63,6 +63,9 @@ var Mecha = (function () {
         this._moveRangeWidth = w;
         this._moveRangeHeight = h;
     };
+    Mecha.prototype.getPoint = function () {
+        return new egret.Point(this._armatureDisplay.x, this._armatureDisplay.y);
+    };
     Mecha.prototype.move = function (dir) {
         if (this._moveDir == dir) {
             return;

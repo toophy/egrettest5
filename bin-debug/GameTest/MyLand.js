@@ -120,16 +120,35 @@ var tgame;
     // easy ai
     var EasyAI = (function () {
         function EasyAI() {
+            this._left = false;
+            this._right = false;
             this._actor = null;
             this._state = 0;
             this._lastTime = new Date().getTime();
-            this._left = false;
-            this._right = false;
+            this._player = false;
         }
         EasyAI.prototype.setActor = function (a) {
             this._actor = a;
         };
+        EasyAI.prototype.getActor = function () {
+            return this._actor;
+        };
+        EasyAI.prototype.enablePlayer = function (e) {
+            this._player = e;
+            if (this._player) {
+                //"null":
+                this._state = 0;
+                this._left = false;
+                this._right = false;
+                this._actor.attack(false);
+                this._updateMove(0);
+                this._lastTime = new Date().getTime() + 1000;
+            }
+        };
         EasyAI.prototype.update = function () {
+            if (this._player) {
+                return;
+            }
             var now = new Date().getTime();
             if (now > this._lastTime) {
                 var new_state = Math.floor(Math.random() * 8);
@@ -146,14 +165,12 @@ var tgame;
                             this._left = true;
                             this._right = false;
                             this._updateMove(-1);
-                            // this._moveGrounds(1);
                             this._lastTime = new Date().getTime() + 3000;
                             break;
                         case 2:
                             this._right = true;
                             this._left = false;
                             this._updateMove(1);
-                            // this._moveGrounds(-1);
                             this._lastTime = new Date().getTime() + 3000;
                             break;
                         case 3:
@@ -185,13 +202,11 @@ var tgame;
                         this._left = true;
                         this._right = false;
                         this._updateMove(-1);
-                        // this._moveGrounds(1);
                         break;
                     case 2:
                         this._right = true;
                         this._left = false;
                         this._updateMove(1);
-                        // this._moveGrounds(-1);
                         break;
                     case 3:
                         this._actor.jump();
@@ -230,6 +245,9 @@ var tgame;
             this._bullets = [];
             this._easyActorAI = [];
             this._bulletSprite = null;
+            this._player = null;
+            this._playerAI = null;
+            this._viewPos = new egret.Point();
             this._bulletSprite = new egret.Sprite();
         }
         LandView.prototype.loadCityUp = function () {
@@ -346,6 +364,7 @@ var tgame;
             this.loadCityUp2();
             this.loadCityMiddle();
             this.loadCityDown();
+            this._viewPos.setTo(1136 / 2, 640 / 2);
         };
         LandView.prototype.ShowLand = function (s) {
             for (var i = 0; i < this.citySprite.length; ++i) {
@@ -354,9 +373,11 @@ var tgame;
             // 子弹层
             s.addChild(this._bulletSprite);
         };
-        LandView.prototype.ScrollLand = function (x) {
+        LandView.prototype.ScrollLand = function (x, y) {
+            var oldx = this._viewPos.x;
+            this._viewPos.x = x;
             for (var i = 0; i < this.citySprite.length; ++i) {
-                this.citySprite[i].x += x;
+                this.citySprite[i].x += (x - oldx);
             }
         };
         LandView.prototype.Update = function () {
@@ -379,6 +400,88 @@ var tgame;
         };
         LandView.prototype.getBulletLayer = function () {
             return this._bulletSprite;
+        };
+        LandView.prototype.randomPlayer = function () {
+            if (this._easyActorAI.length > 0) {
+                if (this._playerAI != null) {
+                    this._playerAI.enablePlayer(false);
+                    this._player = null;
+                    this._playerAI = null;
+                }
+                var nextPlayer = Math.floor(Math.random() * this._easyActorAI.length);
+                if (nextPlayer < this._easyActorAI.length) {
+                    this._playerAI = this._easyActorAI[nextPlayer];
+                    this._player = this._playerAI.getActor();
+                    this._playerAI.enablePlayer(true);
+                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+                }
+            }
+        };
+        LandView.prototype._touchMove = function (x, y) {
+            if (this._player != null) {
+                this._player.aim(x, y);
+            }
+        };
+        LandView.prototype._touchHandler = function (event) {
+            if (this._player != null) {
+                this._player.aim(event.stageX, event.stageY);
+                if (event.type == egret.TouchEvent.TOUCH_BEGIN) {
+                    this._player.attack(true);
+                }
+                else {
+                    this._player.attack(false);
+                }
+            }
+        };
+        LandView.prototype._keyHandler = function (event) {
+            if (event.keyCode == 13) {
+                this.randomPlayer();
+                return;
+            }
+            if (this._player == null) {
+                return;
+            }
+            var isDown = event.type == "keydown";
+            switch (event.keyCode) {
+                case 37:
+                case 65:
+                    this._playerAI._left = isDown;
+                    this._playerAI._updateMove(-1);
+                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+                    break;
+                case 39:
+                case 68:
+                    this._playerAI._right = isDown;
+                    this._playerAI._updateMove(1);
+                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+                    break;
+                case 38:
+                case 87:
+                    if (isDown) {
+                        this._player.jump();
+                    }
+                    break;
+                case 83:
+                case 40:
+                    this._player.squat(isDown);
+                    break;
+                case 81:
+                    if (isDown) {
+                        this._player.switchWeaponR();
+                    }
+                    break;
+                case 69:
+                    if (isDown) {
+                        this._player.switchWeaponL();
+                    }
+                    break;
+                case 32:
+                    if (isDown) {
+                        this._player.switchWeaponR();
+                        this._player.switchWeaponL();
+                    }
+                    break;
+            }
         };
         LandView.prototype.LoadCityRow = function (cts, ctr, x, y, w, h) {
             if (ctr == null || cts == null) {

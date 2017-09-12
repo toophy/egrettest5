@@ -142,11 +142,13 @@ namespace tgame {
 
     // easy ai
     export class EasyAI {
+        public _left: boolean = false;
+        public _right: boolean = false;
+
         private _actor: Mecha = null;
         private _state: number = 0;
         private _lastTime: number = new Date().getTime();
-        private _left: boolean = false;
-        private _right: boolean = false;
+        private _player: boolean = false;
 
         public constructor() {
         }
@@ -155,7 +157,29 @@ namespace tgame {
             this._actor = a;
         }
 
+        public getActor(): Mecha {
+            return this._actor;
+        }
+
+        public enablePlayer(e: boolean) {
+            this._player = e;
+            if (this._player) {
+                //"null":
+                this._state = 0;
+
+                this._left = false;
+                this._right = false;
+                this._actor.attack(false);
+                this._updateMove(0);
+                this._lastTime = new Date().getTime() + 1000;
+            }
+        }
+
         public update() {
+            if (this._player) {
+                return;
+            }
+
             let now: number = new Date().getTime();
             if (now > this._lastTime) {
 
@@ -174,14 +198,12 @@ namespace tgame {
                             this._left = true;
                             this._right = false;
                             this._updateMove(-1);
-                            // this._moveGrounds(1);
                             this._lastTime = new Date().getTime() + 3000;
                             break;
                         case 2://"right_walk":
                             this._right = true;
                             this._left = false;
                             this._updateMove(1);
-                            // this._moveGrounds(-1);
                             this._lastTime = new Date().getTime() + 3000;
                             break;
                         case 3://"jump":
@@ -212,13 +234,11 @@ namespace tgame {
                         this._left = true;
                         this._right = false;
                         this._updateMove(-1);
-                        // this._moveGrounds(1);
                         break;
                     case 2://"right_walk":
                         this._right = true;
                         this._left = false;
                         this._updateMove(1);
-                        // this._moveGrounds(-1);
                         break;
                     case 3://"jump":
                         this._actor.jump();
@@ -229,8 +249,7 @@ namespace tgame {
             }
         }
 
-
-        private _updateMove(dir: number): void {
+        public _updateMove(dir: number): void {
             if (this._left && this._right) {
                 this._actor.move(dir);
             } else if (this._left) {
@@ -241,82 +260,6 @@ namespace tgame {
                 this._actor.move(0);
             }
         }
-
-        // public addBullet(bullet: Bullet): void {
-        //     this._bullets.push(bullet);
-        // }
-
-        // private _touchHandler(event: egret.TouchEvent): void {
-        //     this._actor.aim(event.stageX, event.stageY);
-
-        //     if (event.type == egret.TouchEvent.TOUCH_BEGIN) {
-        //         this._actor.attack(true);
-        //     } else {
-        //         this._actor.attack(false);
-        //     }
-        // }
-
-        // private _moveGrounds(s:number){
-        //    for (let i of this._grounds) {
-        //        if(s==1){
-        //            i.x += 2*s;
-        //        } else if(s==-1){
-        //            i.x += 2*s;
-        //        }
-        //    }
-        //    this._lands.ScrollLand(2*s);
-        // }
-
-        //     private _keyHandler(event: KeyboardEvent): void {
-        // const isDown: boolean = event.type == "keydown";
-        // switch (event.keyCode) {
-        //     case 37:
-        //     case 65:
-        //         GameMapContainer.instance._left = isDown;
-        //         GameMapContainer.instance._updateMove(-1);
-        //         GameMapContainer.instance._moveGrounds(1);
-        //         break;
-
-        //     case 39:
-        //     case 68:
-        //         GameMapContainer.instance._right = isDown;
-        //         GameMapContainer.instance._updateMove(1);
-        //         GameMapContainer.instance._moveGrounds(-1);
-        //         break;
-
-        //     case 38:
-        //     case 87:
-        //         if (isDown) {
-        //             GameMapContainer.instance._player.jump();
-        //         }
-        //         break;
-
-        //     case 83:
-        //     case 40:
-        //         GameMapContainer.instance._player.squat(isDown);
-        //         break;
-
-        //     case 81:
-        //         if (isDown) {
-        //             GameMapContainer.instance._player.switchWeaponR();
-        //         }
-        //         break;
-
-        //     case 69:
-        //         if (isDown) {
-        //             GameMapContainer.instance._player.switchWeaponL();
-        //         }
-        //         break;
-
-        //     case 32:
-        //         if (isDown) {
-        //             GameMapContainer.instance._player.switchWeaponR();
-        //             GameMapContainer.instance._player.switchWeaponL();
-        //         }
-        //         break;
-        // }
-
-
     }
 
 
@@ -334,6 +277,10 @@ namespace tgame {
         private _bullets: Array<Bullet> = [];
         private _easyActorAI: Array<EasyAI> = [];
         private _bulletSprite: egret.Sprite = null;
+        private _player: Mecha = null;
+        private _playerAI: EasyAI = null;
+
+        private _viewPos: egret.Point = new egret.Point();
 
         public constructor() {
             this._bulletSprite = new egret.Sprite();
@@ -469,6 +416,8 @@ namespace tgame {
             this.loadCityUp2();
             this.loadCityMiddle();
             this.loadCityDown();
+
+            this._viewPos.setTo(1136 / 2, 640 / 2);
         }
 
         public ShowLand(s: egret.Sprite) {
@@ -480,9 +429,11 @@ namespace tgame {
             s.addChild(this._bulletSprite);
         }
 
-        public ScrollLand(x: number) {
+        public ScrollLand(x: number, y: number) {
+            let oldx: number = this._viewPos.x;
+            this._viewPos.x = x;
             for (let i = 0; i < this.citySprite.length; ++i) {
-                this.citySprite[i].x += x;
+                this.citySprite[i].x += (x - oldx);
             }
         }
 
@@ -510,6 +461,102 @@ namespace tgame {
 
         public getBulletLayer(): egret.Sprite {
             return this._bulletSprite;
+        }
+
+        private randomPlayer() {
+            if (this._easyActorAI.length > 0) {
+                if (this._playerAI != null) {
+                    this._playerAI.enablePlayer(false);
+                    this._player = null;
+                    this._playerAI = null;
+                }
+
+                let nextPlayer: number = Math.floor(Math.random() * this._easyActorAI.length);
+                if (nextPlayer < this._easyActorAI.length) {
+                    this._playerAI = this._easyActorAI[nextPlayer];
+                    this._player = this._playerAI.getActor();
+                    this._playerAI.enablePlayer(true);
+                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+                }
+            }
+        }
+
+        public _touchMove(x: number, y: number) {
+            if (this._player != null) {
+                this._player.aim(x, y);
+            }
+        }
+
+        public _touchHandler(event: egret.TouchEvent): void {
+            if (this._player != null) {
+                this._player.aim(event.stageX, event.stageY);
+
+                if (event.type == egret.TouchEvent.TOUCH_BEGIN) {
+                    this._player.attack(true);
+                } else {
+                    this._player.attack(false);
+                }
+            }
+        }
+
+        public _keyHandler(event: KeyboardEvent): void {
+
+            if (event.keyCode == 13) {
+                this.randomPlayer();
+                return;
+            }
+
+            if (this._player == null) {
+                return;
+            }
+
+            const isDown: boolean = event.type == "keydown";
+            switch (event.keyCode) {
+                case 37:
+                case 65:
+                    this._playerAI._left = isDown;
+                    this._playerAI._updateMove(-1);
+                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+                    break;
+
+                case 39:
+                case 68:
+                    this._playerAI._right = isDown;
+                    this._playerAI._updateMove(1);
+                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+                    break;
+
+                case 38:
+                case 87:
+                    if (isDown) {
+                        this._player.jump();
+                    }
+                    break;
+
+                case 83:
+                case 40:
+                    this._player.squat(isDown);
+                    break;
+
+                case 81:
+                    if (isDown) {
+                        this._player.switchWeaponR();
+                    }
+                    break;
+
+                case 69:
+                    if (isDown) {
+                        this._player.switchWeaponL();
+                    }
+                    break;
+
+                case 32:
+                    if (isDown) {
+                        this._player.switchWeaponR();
+                        this._player.switchWeaponL();
+                    }
+                    break;
+            }
         }
 
         private LoadCityRow(cts: egret.Sprite, ctr: CnfCityRow, x: number, y: number, w: number, h: number) {
@@ -595,8 +642,6 @@ namespace tgame {
                 }
             }
         }
-
-
     }
 
     // land 再次划分
