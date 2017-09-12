@@ -157,9 +157,9 @@ namespace tgame {
 
         public update() {
             let now: number = new Date().getTime();
-            if (now > this._lastTime + 3000) {
-                this._lastTime = new Date().getTime();
-                let new_state = Math.floor(Math.random() * 4);
+            if (now > this._lastTime) {
+
+                let new_state = Math.floor(Math.random() * 6);
 
                 if (new_state != this._state || this._state != 0) {
                     this._state = new_state;
@@ -168,23 +168,33 @@ namespace tgame {
                             this._left = false;
                             this._right = false;
                             this._updateMove(0);
+                            this._lastTime = new Date().getTime() + 1000;
                             break;
                         case 1://"left_walk":
                             this._left = true;
                             this._right = false;
                             this._updateMove(-1);
                             // this._moveGrounds(1);
+                            this._lastTime = new Date().getTime() + 3000;
                             break;
                         case 2://"right_walk":
                             this._right = true;
                             this._left = false;
                             this._updateMove(1);
                             // this._moveGrounds(-1);
+                            this._lastTime = new Date().getTime() + 3000;
                             break;
                         case 3://"jump":
                             this._actor.jump();
+                            this._lastTime = new Date().getTime() + 3000;
                             break;
                         case 4://
+                            this._actor.switchWeaponR();
+                            this._lastTime = new Date().getTime() + 500;
+                            break;
+                        case 5://
+                            this._actor.switchWeaponL();
+                            this._lastTime = new Date().getTime() + 500;
                             break;
                     }
                 }
@@ -318,57 +328,140 @@ namespace tgame {
             this._easyActorAI = new Array<EasyAI>();
         }
 
+        private loadCityUp() {
+            let cts: egret.Sprite = new egret.Sprite();
+            cts.x = 0;
+            cts.y = 0;
+            this.citySprite.push(cts);
+
+            let i: number = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.citys[p] != null) {
+                    this.LoadCityRow(cts, this.cnfs.citys[p].up, i * 1136, 0, 1136, this.up_height);
+                }
+                ++i;
+            }
+
+            i = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.builds[p] != null) {
+                    this.LoadCityBuild(cts, this.cnfs.builds[p].up, i * 1136, 0, 1136, this.up_height);
+                }
+                ++i;
+            }
+
+            i = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].up, i * 1136, 0, 1136, this.up_height);
+                }
+                ++i;
+            }
+        }
+
+        private loadCityUp2() {
+            let cts: egret.Sprite = new egret.Sprite();
+            cts.x = 0;
+            cts.y = this.up_height;
+            this.citySprite.push(cts);
+
+            let i: number = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.citys[p] != null) {
+                    this.LoadCityRow(cts, this.cnfs.citys[p].up2, i * 1136, 0, 1136, this.up2_height);
+                }
+                ++i;
+            }
+
+            i = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.builds[p] != null) {
+                    this.LoadCityBuild(cts, this.cnfs.builds[p].up2, i * 1136, 0, 1136, this.up2_height);
+                }
+                ++i;
+            }
+
+            i = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].up2, i * 1136, 0, 1136, this.up2_height);
+                }
+                ++i;
+            }
+        }
+
+        private loadCityMiddle() {
+            let cts: egret.Sprite = new egret.Sprite();
+            cts.x = 0;
+            cts.y = this.up_height + this.up2_height;
+            this.citySprite.push(cts);
+
+            let i: number = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.citys[p] != null) {
+                    this.LoadCityRow(cts, this.cnfs.citys[p].middle, i * 1136, 0, 1136, this.middle_height);
+                }
+                ++i;
+            }
+
+            i = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.builds[p] != null) {
+                    this.LoadCityBuild(cts, this.cnfs.builds[p].middle, i * 1136, 0, 1136, this.middle_height);
+                }
+                ++i;
+            }
+
+            i = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].middle, i * 1136, 0, 1136, this.middle_height);
+                }
+                ++i;
+            }
+        }
+
+        private loadCityDown() {
+            let cts: egret.Sprite = new egret.Sprite();
+            cts.x = 0;
+            cts.y = this.up_height + this.up2_height + this.middle_height;
+            this.citySprite.push(cts);
+
+            let i: number = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.citys[p] != null) {
+                    this.LoadCityRow(cts, this.cnfs.citys[p].down, i * 1136, 0, 1136, this.down_height);
+                }
+                ++i;
+            }
+
+            i = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.builds[p] != null) {
+                    this.LoadCityBuild(cts, this.cnfs.builds[p].down, i * 1136, 0, 1136, this.down_height);
+                }
+                ++i;
+            }
+
+            i = 0;
+            for (let p in this.cnfs.citys) {
+                if (this.cnfs.actors[p] != null) {
+                    this.LoadCityActor(cts, this.cnfs.actors[p].down, i * 1136, 0, 1136, this.down_height);
+                }
+                ++i;
+            }
+        }
+
         public LoadLand(jsonData: any) {
             this.cnfs = <CnfLand>jsonData;
-            for (let p in this.cnfs.citys) {
-                let cts: egret.Sprite = new egret.Sprite();
-                if (this.cnfs.citys[p] != null) {
-                    this.LoadCityRow(cts, this.cnfs.citys[p].up, 0, 0, 1136, this.up_height);
-                }
-                if (this.cnfs.builds[p] != null) {
-                    this.LoadCityBuild(cts, this.cnfs.builds[p].up, 0, 0, 1136, this.up_height);
-                }
-                if (this.cnfs.actors[p] != null) {
-                    this.LoadCityActor(cts, this.cnfs.actors[p].up, 0, 0, 1136, this.up_height);
-                }
-
-                if (this.cnfs.citys[p] != null) {
-                    this.LoadCityRow(cts, this.cnfs.citys[p].up2, 0, this.up_height, 1136, this.up2_height);
-                }
-                if (this.cnfs.builds[p] != null) {
-                    this.LoadCityBuild(cts, this.cnfs.builds[p].up2, 0, this.up_height, 1136, this.up2_height);
-                }
-                if (this.cnfs.actors[p] != null) {
-                    this.LoadCityActor(cts, this.cnfs.actors[p].up2, 0, this.up_height, 1136, this.up2_height);
-                }
-
-                if (this.cnfs.citys[p] != null) {
-                    this.LoadCityRow(cts, this.cnfs.citys[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
-                }
-                if (this.cnfs.builds[p] != null) {
-                    this.LoadCityBuild(cts, this.cnfs.builds[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
-                }
-                if (this.cnfs.actors[p] != null) {
-                    this.LoadCityActor(cts, this.cnfs.actors[p].middle, 0, this.up_height + this.up2_height, 1136, this.middle_height);
-                }
-
-                if (this.cnfs.citys[p] != null) {
-                    this.LoadCityRow(cts, this.cnfs.citys[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
-                }
-                if (this.cnfs.builds[p] != null) {
-                    this.LoadCityBuild(cts, this.cnfs.builds[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
-                }
-                if (this.cnfs.actors[p] != null) {
-                    this.LoadCityActor(cts, this.cnfs.actors[p].down, 0, this.up_height + this.up2_height + this.middle_height, 1136, this.down_height);
-                }
-                this.citySprite.push(cts);
-            }
+            this.loadCityUp();
+            this.loadCityUp2();
+            this.loadCityMiddle();
+            this.loadCityDown();
         }
 
         public ShowLand(s: egret.Sprite) {
             for (let i = 0; i < this.citySprite.length; ++i) {
-                this.citySprite[i].x = i * 1136;
-                this.citySprite[i].y = 0;
                 s.addChild(this.citySprite[i]);
             }
         }
@@ -462,6 +555,7 @@ namespace tgame {
                 } else if (lc.type == "animation") {
                     let tmpActor: Mecha = new Mecha();
                     tmpActor.setParent(cts, x + lc.data.x, y + lc.data.y);
+                    tmpActor.setMoveRange(3*1136);
                     this._actors.push(tmpActor);
 
                     let tmpActorAI: EasyAI = new EasyAI();

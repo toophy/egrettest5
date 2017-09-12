@@ -34,6 +34,7 @@ class Mecha {
 
     private _parent: egret.Sprite = null;
     private _ground_y: number = 0;
+    private _moveRangeWidth: number = 0;
 
     public constructor() {
         this._armature = GameMapContainer.instance.factory.buildArmature("mecha_1502b");
@@ -70,6 +71,10 @@ class Mecha {
 
         this._armatureDisplay.x = x;
         this._armatureDisplay.y = this._ground_y;
+    }
+
+    public setMoveRange(w:number) {
+        this._moveRangeWidth = w;
     }
 
     public move(dir: number): void {
@@ -234,8 +239,8 @@ class Mecha {
             this._armatureDisplay.x += this._speedX;
             if (this._armatureDisplay.x < 0) {
                 this._armatureDisplay.x = 0;
-            } else if (this._armatureDisplay.x > GameMapContainer.instance.rootContainer.stage.stageWidth) {
-                this._armatureDisplay.x = GameMapContainer.instance.rootContainer.stage.stageWidth;
+            } else if (this._armatureDisplay.x > this._moveRangeWidth) {
+                this._armatureDisplay.x = this._moveRangeWidth;
             }
         }
 

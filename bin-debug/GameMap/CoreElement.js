@@ -26,6 +26,7 @@ var Mecha = (function () {
         this._target = new egret.Point();
         this._parent = null;
         this._ground_y = 0;
+        this._moveRangeWidth = 0;
         this._armature = GameMapContainer.instance.factory.buildArmature("mecha_1502b");
         this._armatureDisplay = this._armature.display;
         // this._armatureDisplay.x = GameMapContainer.instance.rootContainer.stage.stageWidth * 0.5;
@@ -54,6 +55,9 @@ var Mecha = (function () {
         this._ground_y = y;
         this._armatureDisplay.x = x;
         this._armatureDisplay.y = this._ground_y;
+    };
+    Mecha.prototype.setMoveRange = function (w) {
+        this._moveRangeWidth = w;
     };
     Mecha.prototype.move = function (dir) {
         if (this._moveDir == dir) {
@@ -192,8 +196,8 @@ var Mecha = (function () {
             if (this._armatureDisplay.x < 0) {
                 this._armatureDisplay.x = 0;
             }
-            else if (this._armatureDisplay.x > GameMapContainer.instance.rootContainer.stage.stageWidth) {
-                this._armatureDisplay.x = GameMapContainer.instance.rootContainer.stage.stageWidth;
+            else if (this._armatureDisplay.x > this._moveRangeWidth) {
+                this._armatureDisplay.x = this._moveRangeWidth;
             }
         }
         if (this._speedY != 0) {
