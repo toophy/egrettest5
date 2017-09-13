@@ -466,6 +466,7 @@ var tgame;
                 else {
                     this._player.attack(false);
                 }
+                this.TouchNewActor(event.stageX, event.stageY);
             }
         };
         LandView.prototype._keyHandler = function (event) {
@@ -539,6 +540,19 @@ var tgame;
                     break;
             }
         };
+        LandView.prototype.TouchNewActor = function (x, y) {
+            // 新建演员
+            // 属于谁?
+            var newPos = new egret.Point();
+            this.citySprite[2].globalToLocal(x, y, newPos);
+            var tmpActor = new Mecha();
+            tmpActor.setParent(this, this.citySprite[2], newPos.x, 150 /*newPos.y*/);
+            tmpActor.setMoveRange(3 * 1136, 640);
+            this._actors.push(tmpActor);
+            var tmpActorAI = new EasyAI();
+            tmpActorAI.setActor(tmpActor);
+            this._easyActorAI.push(tmpActorAI);
+        };
         LandView.prototype.LoadCityRow = function (cts, ctr, x, y, w, h) {
             if (ctr == null || cts == null) {
                 return;
@@ -583,6 +597,12 @@ var tgame;
                     bg4.x = x + lc.data.x;
                     bg4.y = y + lc.data.y;
                     cts.addChild(bg4);
+                }
+                else if (lc.type == "animation") {
+                    var tmpActor = new Mecha();
+                    tmpActor.setParent(this, cts, x + lc.data.x, y + lc.data.y);
+                    tmpActor.setMoveRange(3 * 1136, 640);
+                    this._actors.push(tmpActor);
                 }
             }
         };

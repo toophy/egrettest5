@@ -533,6 +533,8 @@ namespace tgame {
                 } else {
                     this._player.attack(false);
                 }
+
+                this.TouchNewActor(event.stageX, event.stageY);
             }
         }
 
@@ -623,6 +625,21 @@ namespace tgame {
             }
         }
 
+        private TouchNewActor(x: number, y: number) {
+            // 新建演员
+            // 属于谁?
+            let newPos:egret.Point = new egret.Point();
+            this.citySprite[2].globalToLocal(x,y,newPos)
+            let tmpActor: Mecha = new Mecha();
+            tmpActor.setParent(this, this.citySprite[2], newPos.x , 150 /*newPos.y*/);
+            tmpActor.setMoveRange(3 * 1136, 640);
+            this._actors.push(tmpActor);
+
+            let tmpActorAI: EasyAI = new EasyAI();
+            tmpActorAI.setActor(tmpActor);
+            this._easyActorAI.push(tmpActorAI);
+        }
+
         private LoadCityRow(cts: egret.Sprite, ctr: CnfCityRow, x: number, y: number, w: number, h: number) {
             if (ctr == null || cts == null) {
                 return;
@@ -669,6 +686,11 @@ namespace tgame {
                     bg4.x = x + lc.data.x;
                     bg4.y = y + lc.data.y;
                     cts.addChild(bg4);
+                } else if (lc.type == "animation") {
+                    let tmpActor: Mecha = new Mecha();
+                    tmpActor.setParent(this, cts, x + lc.data.x, y + lc.data.y);
+                    tmpActor.setMoveRange(3 * 1136, 640);
+                    this._actors.push(tmpActor);
                 }
             }
         }

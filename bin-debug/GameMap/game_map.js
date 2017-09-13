@@ -35,6 +35,8 @@ var GameMapContainer = (function (_super) {
         this._lands.ShowLand(this);
         this.touchEnabled = true;
         this.addEventListener(egret.Event.ENTER_FRAME, this.onUpdateFrame, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this._touchHandler, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_END, this._touchHandler, this);
         document.addEventListener("keydown", this._keyHandler);
         document.addEventListener("keyup", this._keyHandler);
     };

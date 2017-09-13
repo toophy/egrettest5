@@ -141,6 +141,32 @@
             "id": 1,
             "sort": 1,
             "master": "player1",
+            "up2":[
+                {
+                    "type": "animation",
+                    "data": {
+                        "shape": "rect",
+                        "color": 100,
+                        "res": "mecha_1502b",
+                        "x": 0,
+                        "y": 0,
+                        "width": 100,
+                        "height": 240
+                    }
+                },
+                {
+                    "type": "animation",
+                    "data": {
+                        "shape": "rect",
+                        "color": 100,
+                        "res": "mecha_1502b",
+                        "x": 200,
+                        "y": 0,
+                        "width": 100,
+                        "height": 240
+                    }
+                }
+            ],
             "down": [
                 {
                     "type": "image",
