@@ -217,6 +217,9 @@ var tgame;
             }
         };
         EasyAI.prototype._updateMove = function (dir) {
+            if (this._player) {
+                egret.log("updateMove");
+            }
             if (this._left && this._right) {
                 this._actor.move(dir);
             }
@@ -248,6 +251,9 @@ var tgame;
             this._player = null;
             this._playerAI = null;
             this._viewPos = new egret.Point();
+            this._targetViewPos = new egret.Point();
+            this._targetViewSpeed = 0.1;
+            this._targetViewRun = false;
             this._bulletSprite = new egret.Sprite();
         }
         LandView.prototype.loadCityUp = function () {
@@ -373,11 +379,36 @@ var tgame;
             // 子弹层
             s.addChild(this._bulletSprite);
         };
-        LandView.prototype.ScrollLand = function (x, y) {
-            var oldx = this._viewPos.x;
-            this._viewPos.x = x;
-            for (var i = 0; i < this.citySprite.length; ++i) {
-                this.citySprite[i].x += (oldx - x);
+        LandView.prototype.ScrollLand = function () {
+            if (!this._targetViewRun) {
+                return;
+            }
+            if (egret.Point.distance(this._targetViewPos, this._viewPos) > Math.abs(this._targetViewSpeed)) {
+                var oldx = this._viewPos.x;
+                this._viewPos.x = oldx + this._targetViewSpeed;
+                for (var i = 0; i < this.citySprite.length; ++i) {
+                    this.citySprite[i].x += (oldx - this._viewPos.x);
+                }
+            }
+            else {
+                this._targetViewRun = false;
+                var oldx = this._viewPos.x;
+                this._viewPos.x = this._targetViewPos.x;
+                for (var i = 0; i < this.citySprite.length; ++i) {
+                    this.citySprite[i].x += (oldx - this._viewPos.x);
+                }
+            }
+        };
+        LandView.prototype.SetTargetViewPos = function (x, y, speed) {
+            this._targetViewRun = true;
+            this._targetViewPos.x = x;
+            this._targetViewPos.y = y;
+            this._targetViewPos.y = this._viewPos.y;
+            if (this._viewPos.x <= this._targetViewPos.x) {
+                this._targetViewSpeed = speed;
+            }
+            else {
+                this._targetViewSpeed = -speed;
             }
         };
         LandView.prototype.Update = function () {
@@ -394,6 +425,8 @@ var tgame;
                     this._bullets.splice(i, 1);
                 }
             }
+            //视口滚动
+            this.ScrollLand();
         };
         LandView.prototype.addBullet = function (bullet) {
             this._bullets.push(bullet);
@@ -415,7 +448,7 @@ var tgame;
                     this._playerAI.enablePlayer(true);
                     var point = new egret.Point();
                     this._player.getPoint(point);
-                    this.ScrollLand(point.x, point.y);
+                    this.SetTargetViewPos(point.x, point.y, 100);
                 }
             }
         };
@@ -454,7 +487,8 @@ var tgame;
                         this._playerAI._updateMove(-1);
                         var point = new egret.Point();
                         this._player.getPoint(point);
-                        this.ScrollLand(point.x, point.y);
+                        this.SetTargetViewPos(point.x, point.y, 5);
+                        egret.log("left walk");
                     }
                     break;
                 case 39:
@@ -464,18 +498,28 @@ var tgame;
                         this._playerAI._updateMove(1);
                         var point = new egret.Point();
                         this._player.getPoint(point);
-                        this.ScrollLand(point.x, point.y);
+                        this.SetTargetViewPos(point.x, point.y, 5);
+                        egret.log("right walk");
                     }
                     break;
                 case 38:
                 case 87:
                     if (isDown) {
                         this._player.jump();
+                        var point = new egret.Point();
+                        this._player.getPoint(point);
+                        this.SetTargetViewPos(point.x, point.y, 5);
+                        egret.log("jump");
                     }
                     break;
                 case 83:
                 case 40:
-                    this._player.squat(isDown);
+                    {
+                        this._player.squat(isDown);
+                        var point = new egret.Point();
+                        this._player.getPoint(point);
+                        this.SetTargetViewPos(point.x, point.y, 5);
+                    }
                     break;
                 case 81:
                     if (isDown) {

@@ -250,6 +250,10 @@ namespace tgame {
         }
 
         public _updateMove(dir: number): void {
+            if (this._player) {
+                egret.log("updateMove");
+            }
+
             if (this._left && this._right) {
                 this._actor.move(dir);
             } else if (this._left) {
@@ -281,6 +285,9 @@ namespace tgame {
         private _playerAI: EasyAI = null;
 
         private _viewPos: egret.Point = new egret.Point();
+        private _targetViewPos: egret.Point = new egret.Point();
+        private _targetViewSpeed: number = 0.1;
+        private _targetViewRun: boolean = false;
 
         public constructor() {
             this._bulletSprite = new egret.Sprite();
@@ -429,11 +436,36 @@ namespace tgame {
             s.addChild(this._bulletSprite);
         }
 
-        public ScrollLand(x: number, y: number) {
-            let oldx: number = this._viewPos.x;
-            this._viewPos.x = x;
-            for (let i = 0; i < this.citySprite.length; ++i) {
-                this.citySprite[i].x += (oldx - x);
+        public ScrollLand() {
+            if (!this._targetViewRun) {
+                return;
+            }
+
+            if (egret.Point.distance(this._targetViewPos, this._viewPos) > Math.abs(this._targetViewSpeed)) {
+                let oldx: number = this._viewPos.x;
+                this._viewPos.x = oldx + this._targetViewSpeed;
+                for (let i = 0; i < this.citySprite.length; ++i) {
+                    this.citySprite[i].x += (oldx - this._viewPos.x);
+                }
+            } else {
+                this._targetViewRun = false;
+                let oldx: number = this._viewPos.x;
+                this._viewPos.x = this._targetViewPos.x;
+                for (let i = 0; i < this.citySprite.length; ++i) {
+                    this.citySprite[i].x += (oldx - this._viewPos.x);
+                }
+            }
+        }
+
+        public SetTargetViewPos(x: number, y: number, speed: number) {
+            this._targetViewRun = true;
+            this._targetViewPos.x = x;
+            this._targetViewPos.y = y;
+            this._targetViewPos.y = this._viewPos.y;
+            if (this._viewPos.x <= this._targetViewPos.x) {
+                this._targetViewSpeed = speed;
+            } else {
+                this._targetViewSpeed = -speed;
             }
         }
 
@@ -453,6 +485,8 @@ namespace tgame {
                     this._bullets.splice(i, 1);
                 }
             }
+            //视口滚动
+            this.ScrollLand();
         }
 
         public addBullet(bullet: Bullet): void {
@@ -479,7 +513,7 @@ namespace tgame {
 
                     let point: egret.Point = new egret.Point();
                     this._player.getPoint(point);
-                    this.ScrollLand(point.x, point.y);
+                    this.SetTargetViewPos(point.x, point.y, 100);
                 }
             }
         }
@@ -525,7 +559,9 @@ namespace tgame {
 
                         let point: egret.Point = new egret.Point();
                         this._player.getPoint(point);
-                        this.ScrollLand(point.x, point.y);
+                        this.SetTargetViewPos(point.x, point.y, 5);
+
+                        egret.log("left walk");
                     }
                     break;
 
@@ -537,7 +573,9 @@ namespace tgame {
 
                         let point: egret.Point = new egret.Point();
                         this._player.getPoint(point);
-                        this.ScrollLand(point.x, point.y);
+                        this.SetTargetViewPos(point.x, point.y, 5);
+
+                        egret.log("right walk");
                     }
                     break;
 
@@ -545,12 +583,23 @@ namespace tgame {
                 case 87:
                     if (isDown) {
                         this._player.jump();
+
+                        let point: egret.Point = new egret.Point();
+                        this._player.getPoint(point);
+                        this.SetTargetViewPos(point.x, point.y, 5);
+
+                        egret.log("jump");
                     }
                     break;
 
                 case 83:
                 case 40:
-                    this._player.squat(isDown);
+                    {
+                        this._player.squat(isDown);
+                        let point: egret.Point = new egret.Point();
+                        this._player.getPoint(point);
+                        this.SetTargetViewPos(point.x, point.y, 5);
+                    }
                     break;
 
                 case 81:
