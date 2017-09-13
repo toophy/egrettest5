@@ -150,6 +150,8 @@ namespace tgame {
         private _lastTime: number = new Date().getTime();
         private _player: boolean = false;
 
+        private static _says: Array<string> = ["呵呵呵", "哈哈哈", "嘿嘿嘿", "叽叽叽叽", "O(∩_∩)O哈哈哈~", "吼吼吼"];
+
         public constructor() {
         }
 
@@ -183,7 +185,7 @@ namespace tgame {
             let now: number = new Date().getTime();
             if (now > this._lastTime) {
 
-                let new_state = Math.floor(Math.random() * 8);
+                let new_state = Math.floor(Math.random() * 9);
 
                 if (new_state != this._state || this._state != 0) {
                     this._state = new_state;
@@ -226,6 +228,9 @@ namespace tgame {
                             this._actor.attack(false);
                             this._lastTime = new Date().getTime() + 500;
                             break;
+                        case 8:// 喊话
+                            this.saySome(EasyAI._says[Math.floor(Math.random() * EasyAI._says.length)]);
+                            break;
                     }
                 }
             } else {
@@ -263,6 +268,10 @@ namespace tgame {
             } else {
                 this._actor.move(0);
             }
+        }
+
+        public saySome(s: string) {
+            this._actor.saySome(s);
         }
     }
 
@@ -628,10 +637,10 @@ namespace tgame {
         private TouchNewActor(x: number, y: number) {
             // 新建演员
             // 属于谁?
-            let newPos:egret.Point = new egret.Point();
-            this.citySprite[2].globalToLocal(x,y,newPos)
+            let newPos: egret.Point = new egret.Point();
+            this.citySprite[2].globalToLocal(x, y, newPos)
             let tmpActor: Mecha = new Mecha();
-            tmpActor.setParent(this, this.citySprite[2], newPos.x , 150 /*newPos.y*/);
+            tmpActor.setParent(this, this.citySprite[2], newPos.x, 150 /*newPos.y*/);
             tmpActor.setMoveRange(3 * 1136, 640);
             this._actors.push(tmpActor);
 

@@ -116,6 +116,19 @@ var Mecha = (function () {
         this._armature.getSlot("weapon_l").childArmature = this._weaponL;
         this._weaponL.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
     };
+    Mecha.prototype.saySome = function (s) {
+        var _this = this;
+        if (this._armatureDisplay) {
+            var label = new eui.Label();
+            label.text = s;
+            label.x = 0 - this._armatureDisplay.width;
+            label.y = 0 - this._armatureDisplay.height - label.height - 10;
+            this._armatureDisplay.addChild(label);
+            var timer = new egret.Timer(500);
+            timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () { _this._armatureDisplay.removeChild(label); }, this);
+            timer.start();
+        }
+    };
     Mecha.prototype.aim = function (x, y) {
         if (this._aimDir == 0) {
             this._aimDir = 10;

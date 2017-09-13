@@ -151,7 +151,7 @@ var tgame;
             }
             var now = new Date().getTime();
             if (now > this._lastTime) {
-                var new_state = Math.floor(Math.random() * 8);
+                var new_state = Math.floor(Math.random() * 9);
                 if (new_state != this._state || this._state != 0) {
                     this._state = new_state;
                     switch (this._state) {
@@ -193,6 +193,9 @@ var tgame;
                             this._actor.attack(false);
                             this._lastTime = new Date().getTime() + 500;
                             break;
+                        case 8:
+                            this.saySome(EasyAI._says[Math.floor(Math.random() * EasyAI._says.length)]);
+                            break;
                     }
                 }
             }
@@ -233,8 +236,12 @@ var tgame;
                 this._actor.move(0);
             }
         };
+        EasyAI.prototype.saySome = function (s) {
+            this._actor.saySome(s);
+        };
         return EasyAI;
     }());
+    EasyAI._says = ["呵呵呵", "哈哈哈", "嘿嘿嘿", "叽叽叽叽", "O(∩_∩)O哈哈哈~", "吼吼吼"];
     tgame.EasyAI = EasyAI;
     __reflect(EasyAI.prototype, "tgame.EasyAI");
     var LandView = (function () {
