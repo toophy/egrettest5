@@ -377,7 +377,7 @@ var tgame;
             var oldx = this._viewPos.x;
             this._viewPos.x = x;
             for (var i = 0; i < this.citySprite.length; ++i) {
-                this.citySprite[i].x += (x - oldx);
+                this.citySprite[i].x += (oldx - x);
             }
         };
         LandView.prototype.Update = function () {
@@ -413,7 +413,9 @@ var tgame;
                     this._playerAI = this._easyActorAI[nextPlayer];
                     this._player = this._playerAI.getActor();
                     this._playerAI.enablePlayer(true);
-                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+                    var point = new egret.Point();
+                    this._player.getPoint(point);
+                    this.ScrollLand(point.x, point.y);
                 }
             }
         };
@@ -434,26 +436,36 @@ var tgame;
             }
         };
         LandView.prototype._keyHandler = function (event) {
+            var isDown = event.type == "keydown";
             if (event.keyCode == 13) {
-                this.randomPlayer();
+                if (!isDown) {
+                    this.randomPlayer();
+                }
                 return;
             }
             if (this._player == null) {
                 return;
             }
-            var isDown = event.type == "keydown";
             switch (event.keyCode) {
                 case 37:
                 case 65:
-                    this._playerAI._left = isDown;
-                    this._playerAI._updateMove(-1);
-                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+                    {
+                        this._playerAI._left = isDown;
+                        this._playerAI._updateMove(-1);
+                        var point = new egret.Point();
+                        this._player.getPoint(point);
+                        this.ScrollLand(point.x, point.y);
+                    }
                     break;
                 case 39:
                 case 68:
-                    this._playerAI._right = isDown;
-                    this._playerAI._updateMove(1);
-                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+                    {
+                        this._playerAI._right = isDown;
+                        this._playerAI._updateMove(1);
+                        var point = new egret.Point();
+                        this._player.getPoint(point);
+                        this.ScrollLand(point.x, point.y);
+                    }
                     break;
                 case 38:
                 case 87:

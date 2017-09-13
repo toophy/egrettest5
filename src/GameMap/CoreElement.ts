@@ -81,8 +81,8 @@ class Mecha {
         this._moveRangeHeight = h;
     }
 
-    public getPoint(): egret.Point {
-        return new egret.Point(this._armatureDisplay.x, this._armatureDisplay.y);
+    public getPoint(resultPoint:egret.Point) {
+        this._parent.stage.localToGlobal(this._armatureDisplay.x, this._armatureDisplay.y,resultPoint);
     }
 
     public move(dir: number): void {

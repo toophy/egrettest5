@@ -433,7 +433,7 @@ namespace tgame {
             let oldx: number = this._viewPos.x;
             this._viewPos.x = x;
             for (let i = 0; i < this.citySprite.length; ++i) {
-                this.citySprite[i].x += (x - oldx);
+                this.citySprite[i].x += (oldx - x);
             }
         }
 
@@ -476,7 +476,10 @@ namespace tgame {
                     this._playerAI = this._easyActorAI[nextPlayer];
                     this._player = this._playerAI.getActor();
                     this._playerAI.enablePlayer(true);
-                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+
+                    let point: egret.Point = new egret.Point();
+                    this._player.getPoint(point);
+                    this.ScrollLand(point.x, point.y);
                 }
             }
         }
@@ -501,8 +504,11 @@ namespace tgame {
 
         public _keyHandler(event: KeyboardEvent): void {
 
+            const isDown: boolean = event.type == "keydown";
             if (event.keyCode == 13) {
-                this.randomPlayer();
+                if (!isDown) {
+                    this.randomPlayer();
+                }
                 return;
             }
 
@@ -510,20 +516,29 @@ namespace tgame {
                 return;
             }
 
-            const isDown: boolean = event.type == "keydown";
             switch (event.keyCode) {
                 case 37:
                 case 65:
-                    this._playerAI._left = isDown;
-                    this._playerAI._updateMove(-1);
-                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+                    {
+                        this._playerAI._left = isDown;
+                        this._playerAI._updateMove(-1);
+
+                        let point: egret.Point = new egret.Point();
+                        this._player.getPoint(point);
+                        this.ScrollLand(point.x, point.y);
+                    }
                     break;
 
                 case 39:
                 case 68:
-                    this._playerAI._right = isDown;
-                    this._playerAI._updateMove(1);
-                    this.ScrollLand(this._player.getPoint().x, this._player.getPoint().y);
+                    {
+                        this._playerAI._right = isDown;
+                        this._playerAI._updateMove(1);
+
+                        let point: egret.Point = new egret.Point();
+                        this._player.getPoint(point);
+                        this.ScrollLand(point.x, point.y);
+                    }
                     break;
 
                 case 38:
