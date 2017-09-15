@@ -29,6 +29,7 @@ var Mecha = (function () {
         this._moveRangeWidth = 0;
         this._moveRangeHeight = 0;
         this._land = null;
+        this._sayLabel = null;
         this._armature = GameMapContainer.instance.factory.buildArmature("mecha_1502b");
         this._armatureDisplay = this._armature.display;
         // this._armatureDisplay.x = GameMapContainer.instance.rootContainer.stage.stageWidth * 0.5;
@@ -117,17 +118,31 @@ var Mecha = (function () {
         this._weaponL.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
     };
     Mecha.prototype.saySome = function (s) {
-        var _this = this;
         if (this._armatureDisplay) {
-            var label = new eui.Label();
-            label.text = s;
-            label.x = 0 - this._armatureDisplay.width;
-            label.y = 0 - this._armatureDisplay.height - label.height - 10;
-            this._armatureDisplay.addChild(label);
-            var timer = new egret.Timer(500);
-            timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () { _this._armatureDisplay.removeChild(label); }, this);
+            if (this._sayLabel == null) {
+                this._sayLabel = new eui.Label();
+                this._sayLabel.fontFamily = "宋体";
+                this._sayLabel.size = 60;
+                this._sayLabel.height = 40;
+                this._sayLabel.backgroundColor = 0xff0000;
+                this._sayLabel.textAlign = egret.HorizontalAlign.CENTER;
+                this._sayLabel.verticalAlign = egret.VerticalAlign.MIDDLE;
+                this._armatureDisplay.addChild(this._sayLabel);
+            }
+            if (this._sayLabel != null) {
+                this._sayLabel.text = s;
+                this._sayLabel.x = 0;
+                this._sayLabel.y = 0;
+                this._sayLabel.width = this._armatureDisplay.width;
+                this._sayLabel.visible = true;
+            }
+            var timer = new egret.Timer(1500, 1);
+            timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.onsayOver, this);
             timer.start();
         }
+    };
+    Mecha.prototype.onsayOver = function (event) {
+        this._sayLabel.visible = false;
     };
     Mecha.prototype.aim = function (x, y) {
         if (this._aimDir == 0) {

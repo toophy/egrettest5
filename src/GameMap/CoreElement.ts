@@ -37,6 +37,7 @@ class Mecha {
     private _moveRangeWidth: number = 0;
     private _moveRangeHeight: number = 0;
     private _land: tgame.LandView = null;
+    private _sayLabel: eui.Label = null;
 
     public constructor() {
         this._armature = GameMapContainer.instance.factory.buildArmature("mecha_1502b");
@@ -151,23 +152,35 @@ class Mecha {
 
     public saySome(s: string) {
         if (this._armatureDisplay) {
-            var label: eui.Label = new eui.Label();
-            label.text = s;
-            label.x = 0 - this._armatureDisplay.width;
-            label.y = 0 - this._armatureDisplay.height - label.height - 10;
-            this._armatureDisplay.addChild(label);
+            if (this._sayLabel == null) {
+                this._sayLabel = new eui.Label();
+                this._sayLabel.fontFamily = "宋体";
+                this._sayLabel.size = 60;
+                this._sayLabel.height = 40;
+                this._sayLabel.backgroundColor = 0xff0000;
+                this._sayLabel.textAlign = egret.HorizontalAlign.CENTER;
+                this._sayLabel.verticalAlign = egret.VerticalAlign.MIDDLE;
+                this._armatureDisplay.addChild(this._sayLabel);
+            }
+            if (this._sayLabel != null) {
+                this._sayLabel.text = s;
+                this._sayLabel.x = 0 - this._armatureDisplay.width;
+                this._sayLabel.y = 0 - this._armatureDisplay.height - this._sayLabel.height - 10;
+                this._sayLabel.width = this._armatureDisplay.width;
 
-            var timer: egret.Timer = new egret.Timer(500);
+                this._sayLabel.visible = true;
+            }
+
+
+            var timer: egret.Timer = new egret.Timer(1500, 1);
             timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, this.onsayOver, this);
             timer.start();
         }
     }
 
     private onsayOver(event: egret.TimerEvent) {
-        this._armatureDisplay.removeChild();
+        this._sayLabel.visible = false;
     }
-
-
 
     public aim(x: number, y: number): void {
         if (this._aimDir == 0) {
