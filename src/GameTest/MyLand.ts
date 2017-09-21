@@ -109,6 +109,7 @@ namespace tgame {
 
     // 演员
     export class CnfActorBlock {
+        public name: string;
         public shape: string;
         public color: number;
         public res: string;
@@ -727,6 +728,7 @@ namespace tgame {
                     cts.addChild(bg4);
                 } else if (lc.type == "animation") {
                     let tmpActor: Mecha = new Mecha();
+                    tmpActor.setName(lc.data.name);
                     tmpActor.setParent(this, cts, x + lc.data.x, y + lc.data.y);
                     tmpActor.setMoveRange(3 * 1136, 640);
                     this._actors.push(tmpActor);

@@ -636,6 +636,7 @@ var tgame;
                 }
                 else if (lc.type == "animation") {
                     var tmpActor = new Mecha();
+                    tmpActor.setName(lc.data.name);
                     tmpActor.setParent(this, cts, x + lc.data.x, y + lc.data.y);
                     tmpActor.setMoveRange(3 * 1136, 640);
                     this._actors.push(tmpActor);

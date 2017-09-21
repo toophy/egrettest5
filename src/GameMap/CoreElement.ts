@@ -38,6 +38,7 @@ class Mecha {
     private _moveRangeHeight: number = 0;
     private _land: tgame.LandView = null;
     private _sayLabel: eui.Label = null;
+    private _nameLabel: eui.Label = null;
 
     public constructor() {
         this._armature = GameMapContainer.instance.factory.buildArmature("mecha_1502b");
@@ -150,13 +151,39 @@ class Mecha {
         this._weaponL.addEventListener(dragonBones.EventObject.FRAME_EVENT, this._frameEventHandler, this);
     }
 
+    public setName(s: string){
+      if (this._armatureDisplay) {
+            if (this._nameLabel == null) {
+                this._nameLabel = new eui.Label();
+                this._nameLabel.fontFamily = "宋体";
+                this._nameLabel.size = 50;
+                this._nameLabel.width = 350;//this._armatureDisplay.width;
+                this._nameLabel.height = 60;
+                this._nameLabel.x = -125;// - this._armatureDisplay.width;
+                this._nameLabel.y = 0 - 250 - this._nameLabel.height - 20;//this._armatureDisplay.height - this._nameLabel.height - 10;
+                this._nameLabel.textColor = 0x0000ff;
+                this._nameLabel.textAlign = egret.HorizontalAlign.CENTER;
+                this._nameLabel.verticalAlign = egret.VerticalAlign.MIDDLE;
+                this._armatureDisplay.addChild(this._nameLabel);
+            }
+            if (this._nameLabel != null) {
+                this._nameLabel.text = s;
+                this._nameLabel.visible = true;
+            }
+        }  
+    }
+
     public saySome(s: string) {
         if (this._armatureDisplay) {
             if (this._sayLabel == null) {
                 this._sayLabel = new eui.Label();
                 this._sayLabel.fontFamily = "宋体";
-                this._sayLabel.size = 60;
-                this._sayLabel.height = 40;
+                this._sayLabel.size = 50;
+                this._sayLabel.width = 350;//this._armatureDisplay.width;
+                this._sayLabel.height = 60;
+                this._sayLabel.x = -125;// - this._armatureDisplay.width;
+                this._sayLabel.y = 0 - 250 - this._sayLabel.height - 80;//this._armatureDisplay.height - this._sayLabel.height - 10;
+                this._sayLabel.background = true;
                 this._sayLabel.backgroundColor = 0xff0000;
                 this._sayLabel.textAlign = egret.HorizontalAlign.CENTER;
                 this._sayLabel.verticalAlign = egret.VerticalAlign.MIDDLE;
@@ -164,9 +191,6 @@ class Mecha {
             }
             if (this._sayLabel != null) {
                 this._sayLabel.text = s;
-                this._sayLabel.x = 0 - this._armatureDisplay.width;
-                this._sayLabel.y = 0 - this._armatureDisplay.height - this._sayLabel.height - 10;
-                this._sayLabel.width = this._armatureDisplay.width;
 
                 this._sayLabel.visible = true;
             }

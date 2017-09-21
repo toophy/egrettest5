@@ -353,6 +353,7 @@
                 {
                     "type": "animation",
                     "data": {
+                        "name":"柯南",
                         "shape": "rect",
                         "color": 100,
                         "res": "mecha_1502b",
@@ -365,6 +366,7 @@
                 {
                     "type": "animation",
                     "data": {
+                        "name":"海贼王",
                         "shape": "rect",
                         "color": 100,
                         "res": "mecha_1502b",
@@ -408,6 +410,7 @@
                 {
                     "type": "animation",
                     "data": {
+                        "name":"小头萝卜",
                         "shape": "rect",
                         "color": 100,
                         "res": "mecha_1502b",
@@ -420,6 +423,7 @@
                 {
                     "type": "animation",
                     "data": {
+                        "name": "毛利小五郎",
                         "shape": "rect",
                         "color": 100,
                         "res": "mecha_1502b",
