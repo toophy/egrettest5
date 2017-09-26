@@ -38,6 +38,10 @@ var Main = (function (_super) {
     __extends(Main, _super);
     function Main() {
         var _this = _super.call(this) || this;
+        _this.netWork = new Network();
+        _this.netWork.setConnectHandler(_this.onNetConnected, _this);
+        _this.netWork.setCloseHandler(_this.onNetClose, _this);
+        _this.netWork.setErrorHandler(_this.onNetError, _this);
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.onAddToStage, _this);
         return _this;
     }
@@ -123,6 +127,20 @@ var Main = (function (_super) {
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
         // Get asynchronously a json configuration file according to name keyword. As for the property of name please refer to the configuration file of resources/resource.json.
         // RES.getResAsync("description_json", this.startAnimation, this)
+        this.netWork.connect("localhost", "echo", 8080);
+    };
+    Main.prototype.onNetConnected = function () {
+        if (this.netWork) {
+            this.netWork.bind("Index.Login", this.onLogin, this);
+            this.netWork.send("Index", "Login", { "name": "wind", "pwd": "123456" });
+        }
+    };
+    Main.prototype.onNetError = function () {
+    };
+    Main.prototype.onNetClose = function () {
+    };
+    Main.prototype.onLogin = function (data) {
+        console.log("onLogin %s:%s:%s", data["name"], data["pwd"], data["ret"]);
     };
     /**
      * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。

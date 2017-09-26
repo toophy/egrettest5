@@ -157,9 +157,6 @@ var Mecha = (function () {
             }
             if (this._sayLabel != null) {
                 this._sayLabel.text = s;
-                // this._sayLabel.x = 0;// - this._armatureDisplay.width;
-                // this._sayLabel.y = 0 - 250 - this._sayLabel.height - 10;//this._armatureDisplay.height - this._sayLabel.height - 10;
-                // this._sayLabel.width = 250;//this._armatureDisplay.width;
                 this._sayLabel.visible = true;
             }
             var timer = new egret.Timer(1500, 1);

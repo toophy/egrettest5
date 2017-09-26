@@ -37,12 +37,18 @@ class Main extends egret.DisplayObjectContainer {
     private testContainer: TestContainer;
     private flySceneContainer: FlySceneContainer;
     private gameMapContainer: GameMapContainer;
+    private netWork: Network;
 
 
     public constructor() {
         super();
+        this.netWork = new Network();
+        this.netWork.setConnectHandler(this.onNetConnected, this);
+        this.netWork.setCloseHandler(this.onNetClose, this);
+        this.netWork.setErrorHandler(this.onNetError, this);
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
     }
+
 
     private onAddToStage(event: egret.Event) {
         //设置加载进度界面
@@ -139,8 +145,27 @@ class Main extends egret.DisplayObjectContainer {
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
         // Get asynchronously a json configuration file according to name keyword. As for the property of name please refer to the configuration file of resources/resource.json.
         // RES.getResAsync("description_json", this.startAnimation, this)
+
+        this.netWork.connect("localhost", "echo", 8080);
     }
 
+
+    private onNetConnected() {
+        if (this.netWork){
+            this.netWork.bind("Index.Login",this.onLogin,this);
+            this.netWork.send("Index","Login",{"name":"wind","pwd":"123456"});
+        }
+    }
+
+    private onNetError() {
+    }
+
+    private onNetClose() {
+    }
+
+    private onLogin(data: any) {
+        console.log("onLogin %s:%s:%s",data["name"],data["pwd"],data["ret"]);
+    }
 
     /**
      * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
